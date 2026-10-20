@@ -1,0 +1,2175 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>75강 완전 정복 v2 — 초대형 회로도 & 기초 개념 마스터북 (모바일·태블릿 최적화)</title>
+  <style>
+    :root {
+      --bg: #090f1d;
+      --bg-soft: #111b30;
+      --card: #16233d;
+      --card-raised: #1f3256;
+      --border: #334e7b;
+      --text: #f8fafc;
+      --text-muted: #cbd5e1;
+      --cyan: #38bdf8;
+      --cyan-soft: rgba(56, 189, 248, 0.18);
+      --rose: #fb7185;
+      --rose-soft: rgba(251, 113, 133, 0.18);
+      --amber: #fbbf24;
+      --amber-soft: rgba(251, 191, 36, 0.18);
+      --emerald: #34d399;
+      --emerald-soft: rgba(52, 211, 153, 0.18);
+      --purple: #c084fc;
+      --purple-soft: rgba(192, 132, 252, 0.18);
+      --mono: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+      --sans: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      line-height: 1.7;
+      font-size: 16.5px;
+    }
+
+    /* Sticky Top Navigation - Touch Friendly */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(9, 15, 29, 0.94);
+      backdrop-filter: blur(14px);
+      border-bottom: 2px solid var(--border);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .brand {
+      font-weight: 900;
+      font-size: 1.15rem;
+      color: var(--cyan);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .brand span {
+      background: var(--cyan-soft);
+      border: 1px solid var(--cyan);
+      color: #fff;
+      font-size: 0.82rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .nav-links a {
+      color: var(--text);
+      background: var(--bg-soft);
+      text-decoration: none;
+      font-size: 0.92rem;
+      font-weight: 700;
+      padding: 9px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+    .nav-links a:hover, .nav-links a:active {
+      background: var(--cyan);
+      color: #06101e;
+      border-color: var(--cyan);
+    }
+
+    .container {
+      max-width: 1340px;
+      margin: 0 auto;
+      padding: 24px 18px 90px;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(135deg, #162647 0%, #0d162b 100%);
+      border: 2px solid var(--border);
+      border-radius: 24px;
+      padding: clamp(22px, 4vw, 38px);
+      margin-bottom: 32px;
+      box-shadow: 0 18px 45px rgba(0,0,0,0.4);
+    }
+    .hero-badge {
+      display: inline-block;
+      background: var(--amber-soft);
+      color: var(--amber);
+      border: 1px solid var(--amber);
+      font-weight: 800;
+      font-size: 0.9rem;
+      padding: 6px 14px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+    }
+    .hero h1 {
+      margin: 0 0 14px;
+      font-size: clamp(1.75rem, 4vw, 2.65rem);
+      line-height: 1.28;
+      letter-spacing: -0.02em;
+    }
+    .hero p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 1.08rem;
+      max-width: 980px;
+    }
+    .hero-code-banner {
+      margin-top: 24px;
+      background: #060a14;
+      border: 2px solid var(--cyan);
+      border-radius: 16px;
+      padding: 20px 24px;
+      font-family: var(--mono);
+      font-size: clamp(1rem, 2vw, 1.3rem);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      box-shadow: 0 0 25px rgba(56, 189, 248, 0.15);
+    }
+
+    /* Section Card */
+    .section-card {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 24px;
+      padding: clamp(20px, 3.5vw, 34px);
+      margin-bottom: 36px;
+      box-shadow: 0 12px 34px rgba(0,0,0,0.3);
+    }
+    .section-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 24px;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 18px;
+    }
+    .step-num {
+      background: var(--cyan);
+      color: #05101e;
+      font-weight: 900;
+      font-size: 1.2rem;
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.35);
+    }
+    .section-header h2 {
+      margin: 0 0 6px;
+      font-size: clamp(1.35rem, 2.8vw, 1.75rem);
+      line-height: 1.3;
+    }
+    .section-header p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 1.02rem;
+    }
+
+    /* Dual Explanation Box: Analogy vs Formal */
+    .dual-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 18px;
+      margin: 18px 0;
+    }
+    .analogy-box {
+      background: rgba(251, 191, 36, 0.1);
+      border: 2px solid rgba(251, 191, 36, 0.45);
+      border-left: 7px solid var(--amber);
+      border-radius: 16px;
+      padding: 22px;
+      font-size: 1.02rem;
+    }
+    .formal-box {
+      background: rgba(56, 189, 248, 0.1);
+      border: 2px solid rgba(56, 189, 248, 0.45);
+      border-left: 7px solid var(--cyan);
+      border-radius: 16px;
+      padding: 22px;
+      font-size: 1.02rem;
+    }
+    .box-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 900;
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+    }
+    .analogy-box .box-tag { color: var(--amber); }
+    .formal-box .box-tag { color: var(--cyan); }
+
+    /* Part 1: Large Touch-Friendly Code Token Cards */
+    .token-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+      background: #070c18;
+      border: 2px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 22px;
+    }
+    .code-token {
+      font-family: var(--mono);
+      font-size: 1.15rem;
+      font-weight: 800;
+      min-height: 78px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 2px solid var(--border);
+      cursor: pointer;
+      transition: all 0.18s ease;
+      background: var(--card-raised);
+      color: #fff;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    }
+    .code-token:hover {
+      transform: translateY(-3px);
+      border-color: var(--cyan);
+      background: #27406b;
+    }
+    .code-token.active {
+      background: linear-gradient(135deg, #1b4978 0%, #112e51 100%);
+      border-color: var(--cyan);
+      box-shadow: 0 0 22px rgba(56, 189, 248, 0.55);
+      transform: translateY(-2px);
+    }
+    .code-token small {
+      display: block;
+      font-family: var(--sans);
+      font-size: 0.88rem;
+      color: var(--amber);
+      font-weight: 700;
+      margin-top: 6px;
+    }
+
+    /* Part 2: Memory Building & Step-by-Step Builder */
+    .builder-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 24px;
+    }
+    @media (max-width: 1024px) {
+      .builder-layout { grid-template-columns: 1fr; }
+    }
+    .step-btn-list {
+      display: grid;
+      gap: 12px;
+    }
+    .step-choice-btn {
+      background: var(--bg-soft);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 20px;
+      min-height: 76px;
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .step-choice-btn:hover {
+      border-color: var(--cyan);
+      background: var(--card-raised);
+    }
+    .step-choice-btn.active {
+      background: linear-gradient(135deg, #1a3c64 0%, #122847 100%);
+      border-color: var(--cyan);
+      box-shadow: 0 0 18px rgba(56, 189, 248, 0.35);
+    }
+    .step-choice-btn .title {
+      font-weight: 800;
+      font-size: 1.06rem;
+      color: var(--cyan);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .step-choice-btn code {
+      display: block;
+      margin-top: 8px;
+      padding: 6px 10px;
+      background: #070c18;
+      border-radius: 8px;
+      font-family: var(--mono);
+      font-size: 0.95rem;
+      color: var(--amber);
+      overflow-x: auto;
+    }
+
+    /* Memory Floor Cards */
+    .mem-building {
+      background: #080e1c;
+      border: 2px solid var(--border);
+      border-radius: 18px;
+      padding: 20px;
+    }
+    .mem-row {
+      display: grid;
+      grid-template-columns: 105px 135px 130px 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 14px 16px;
+      min-height: 62px;
+      border-radius: 12px;
+      border: 2px solid #223556;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.18s;
+      background: #101c33;
+    }
+    @media (max-width: 720px) {
+      .mem-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+      }
+      .mem-row .mem-desc-col {
+        grid-column: 1 / -1;
+      }
+    }
+    .mem-row:hover {
+      border-color: var(--cyan);
+      background: #17294a;
+    }
+    .mem-row.selected {
+      background: rgba(56, 189, 248, 0.2);
+      border: 2px solid var(--cyan);
+      box-shadow: 0 0 18px rgba(56, 189, 248, 0.35);
+    }
+    .mem-offset {
+      font-family: var(--mono);
+      font-weight: 800;
+      font-size: 1.02rem;
+      color: var(--amber);
+    }
+    .mem-addr {
+      font-family: var(--mono);
+      color: var(--cyan);
+      font-weight: 800;
+      font-size: 1rem;
+    }
+    .mem-name {
+      font-family: var(--mono);
+      font-weight: 900;
+      font-size: 1.02rem;
+      color: #fff;
+    }
+
+    /* Pin-to-Bit Interactive Mapper (1-bit ODR vs 2-bit MODER) */
+    .pin-selector-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 10px;
+      margin: 16px 0;
+    }
+    @media (max-width: 768px) {
+      .pin-selector-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+    .pin-pick-btn {
+      background: var(--bg-soft);
+      border: 2px solid var(--border);
+      color: #fff;
+      border-radius: 12px;
+      padding: 12px 6px;
+      min-height: 58px;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .pin-pick-btn:hover { border-color: var(--cyan); }
+    .pin-pick-btn.active {
+      background: var(--amber);
+      color: #06101e;
+      border-color: #fff;
+      box-shadow: 0 0 16px rgba(251, 191, 36, 0.5);
+    }
+
+    /* Bit Shift Playground - Extra Large Switch Cells */
+    .bit-boxes {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 10px;
+      margin: 18px 0;
+    }
+    @media (max-width: 820px) {
+      .bit-boxes { grid-template-columns: repeat(4, 1fr); }
+    }
+    .bit-cell {
+      background: #0b1426;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 8px;
+      min-height: 96px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.18s;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      user-select: none;
+    }
+    .bit-cell:hover {
+      border-color: var(--cyan);
+      transform: translateY(-2px);
+    }
+    .bit-cell.target {
+      border-color: var(--amber);
+      border-width: 3px;
+      box-shadow: 0 0 18px rgba(251, 191, 36, 0.4);
+    }
+    .bit-cell.on {
+      background: rgba(16, 185, 129, 0.25);
+      border-color: var(--emerald);
+    }
+    .bit-cell small {
+      display: block;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .bit-cell strong {
+      font-family: var(--mono);
+      font-size: 1.65rem;
+      color: #fff;
+      margin: 4px 0;
+    }
+
+    /* Action Buttons & Controls - Tablet/Phone Friendly */
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .action-btn {
+      background: var(--card-raised);
+      color: var(--text);
+      border: 2px solid var(--border);
+      padding: 12px 18px;
+      min-height: 52px;
+      border-radius: 12px;
+      font-size: 0.96rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.18s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .action-btn:hover {
+      border-color: var(--cyan);
+      background: #28426e;
+    }
+    .action-btn.active {
+      background: var(--cyan);
+      color: #05101e;
+      border-color: #fff;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.45);
+    }
+    .action-btn.emerald-active {
+      background: var(--emerald-soft);
+      border-color: var(--emerald);
+      color: #6ee7b7;
+    }
+    .action-btn.rose-active {
+      background: var(--rose-soft);
+      border-color: var(--rose);
+      color: #fda4af;
+    }
+
+    /* Part 4: Full-Width Single-Column Giant Circuit & Waveform Simulator */
+    .control-bar {
+      background: #0b1426;
+      border: 2px solid var(--cyan);
+      border-radius: 18px;
+      padding: 20px 22px;
+      margin-bottom: 24px;
+      display: grid;
+      gap: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    }
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .play-btn {
+      background: var(--cyan);
+      color: #05101f;
+      border: 2px solid #fff;
+      font-weight: 900;
+      padding: 12px 24px;
+      min-height: 54px;
+      border-radius: 14px;
+      cursor: pointer;
+      font-size: 1.05rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+    }
+    .play-btn:hover { filter: brightness(1.1); }
+
+    /* Giant Touch Slider */
+    input[type="range"] {
+      flex: 1;
+      min-width: 220px;
+      height: 14px;
+      accent-color: var(--cyan);
+      cursor: pointer;
+      border-radius: 999px;
+    }
+
+    /* Single-Column Full-Width Stack */
+    .sim-stack {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 26px;
+    }
+    .sim-panel-full {
+      background: #060b16;
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      padding: clamp(14px, 2.5vw, 24px);
+      box-shadow: 0 14px 36px rgba(0,0,0,0.4);
+    }
+    .panel-title {
+      font-size: 1.12rem;
+      font-weight: 900;
+      color: var(--cyan);
+      margin: 0 0 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    /* Animated Current Flow Path */
+    @keyframes dashFlow {
+      to { stroke-dashoffset: -36; }
+    }
+    .current-loop {
+      fill: none;
+      stroke-width: 6;
+      stroke-dasharray: 12 8;
+      stroke-linecap: round;
+      animation: dashFlow 0.7s linear infinite;
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    .current-loop.active {
+      opacity: 1;
+    }
+
+    /* Summary Table */
+    .summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.96rem;
+      margin-top: 12px;
+    }
+    .summary-table th, .summary-table td {
+      padding: 14px 14px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+    .summary-table th {
+      background: var(--bg-soft);
+      color: var(--cyan);
+      font-weight: 900;
+    }
+    .summary-table tbody tr {
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .summary-table tbody tr:hover {
+      background: rgba(56, 189, 248, 0.12);
+    }
+    .summary-table tbody tr.active-row {
+      background: rgba(56, 189, 248, 0.25);
+      border-left: 6px solid var(--cyan);
+    }
+
+    /* Quiz Styling */
+    .quiz-card {
+      background: var(--bg-soft);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+    .quiz-options {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .quiz-opt {
+      background: var(--card);
+      border: 2px solid var(--border);
+      color: var(--text);
+      padding: 14px 18px;
+      min-height: 56px;
+      border-radius: 12px;
+      text-align: left;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+    .quiz-opt:hover { border-color: var(--cyan); background: var(--card-raised); }
+    .quiz-opt.correct {
+      background: var(--emerald-soft);
+      border-color: var(--emerald);
+      color: #a7f3d0;
+    }
+    .quiz-opt.wrong {
+      background: var(--rose-soft);
+      border-color: var(--rose);
+      color: #fecdd3;
+    }
+    .quiz-feedback {
+      margin-top: 12px;
+      font-size: 0.96rem;
+      font-weight: 700;
+      display: none;
+      padding: 12px 16px;
+      border-radius: 10px;
+      background: #080d18;
+    }
+
+    code {
+      font-family: var(--mono);
+      background: rgba(255,255,255,0.1);
+      padding: 3px 7px;
+      border-radius: 6px;
+      color: #fde68a;
+      font-size: 0.92em;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <div class="brand">
+    ⚡ 전동킥보드 STM32 75강 마스터북 v2
+    <span>태블릿·모바일 터치 최적화 &amp; 초대형 1단 회로도</span>
+  </div>
+  <div class="nav-links">
+    <a href="#part0">0. 주소는 어디서 찾나?</a>
+    <a href="#part1">1. 용어 8대장 해부</a>
+    <a href="#part2">2. 시작주소+오프셋 조립</a>
+    <a href="#part3">3. 1비트 vs 2비트 &amp; 비트연산</a>
+    <a href="#part4">4. 초대형 회로·파형 시뮬레이터</a>
+    <a href="#part5">5. 퀴즈</a>
+    <a href="#part6">6. 팩트 검증표</a>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-badge">강의 75 · Pointer &amp; Register Direct Control 완전 정복 (v2 업그레이드)</div>
+    <h1>"시작주소에다가 오프셋을 더하면?"<br>큼직한 버튼과 초대형 회로도로 한눈에 끝내보세요.</h1>
+    <p>
+      어려운 전공 용어(오프셋, 캐스팅, 포인터, 역참조, volatile)를 <strong>[일상 비유 💡]</strong>와 <strong>[공학적 정석 📘]</strong>으로 짝지어 설명하고,
+      초보자가 가장 헷갈리는 <strong>"왜 MODER는 6번 비트를 건드리고 ODR은 3번 비트를 건드리는가?"</strong>까지 완벽히 보완했습니다.
+      모든 버튼과 회로도를 <strong>아이패드·태블릿·스마트폰에서도 시원하게 누르고 볼 수 있도록</strong> 대폭 키웠습니다.
+    </p>
+    <div class="hero-code-banner">
+      <div>
+        <span style="color:#94a3b8;font-size:0.9rem;display:block;margin-bottom:6px;">▼ 75강의 핵심 코드 한 줄 (아래에서 조각별로 터치해 보세요!)</span>
+        <span style="color:#c084fc">#define</span> <span style="color:#38bdf8">GPIOD_ODR</span> &nbsp;
+        <span style="color:#fb7185;font-weight:900;">*(</span><span style="color:#34d399">(volatile uint32_t *)</span><span style="color:#fbbf24">(0x40020C00UL + 0x14UL)</span><span style="color:#fb7185;font-weight:900;">)</span>
+      </div>
+      <a href="#part4" style="background:var(--cyan);color:#06101e;text-decoration:none;font-weight:900;padding:14px 22px;border-radius:12px;font-size:1rem;">초대형 회로도 바로 보기 ↓</a>
+    </div>
+  </header>
+
+  <!-- PART 0 (NEW SUPPLEMENT): WHERE DO THESE NUMBERS COME FROM? -->
+  <section class="section-card" id="part0">
+    <div class="section-header">
+      <div class="step-num">00</div>
+      <div>
+        <h2>잠깐! 강사는 <code>0x40020C00</code>이나 <code>0x14</code> 같은 숫자를 외워서 치나요?</h2>
+        <p>절대 외우지 않습니다! MCU 설명서(레퍼런스 매뉴얼)에서 <strong>딱 3가지 표(건물 주소 → 방 번호 → 스위치 번호)</strong>를 순서대로 찾아 적는 것입니다.</p>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(290px, 1fr));gap:18px;">
+      <div style="background:#0a1224;border:2px solid var(--cyan);border-radius:16px;padding:20px;">
+        <div style="color:var(--cyan);font-weight:900;font-size:1.08rem;margin-bottom:8px;">STEP 1 · 건물 입구 찾기 (Memory Map 표)</div>
+        <p style="margin:0;font-size:0.98rem;color:var(--text-muted);">
+          • <strong>비유</strong>: 캠퍼스 지도에서 "GPIOD 동 건물"의 시작 주소를 찾습니다.<br>
+          • <strong>정석</strong>: 매뉴얼의 <code>Memory Map</code> 표에서 <code>GPIOD</code> 구역의 시작점(Base Address)이 <code>0x4002 0C00</code>임을 확인합니다. (클럭을 켜는 <code>RCC</code> 건물은 <code>0x4002 3800</code>)
+        </p>
+      </div>
+      <div style="background:#0a1224;border:2px solid var(--amber);border-radius:16px;padding:20px;">
+        <div style="color:var(--amber);font-weight:900;font-size:1.08rem;margin-bottom:8px;">STEP 2 · 방 번호 찾기 (Register Map 표)</div>
+        <p style="margin:0;font-size:0.98rem;color:var(--text-muted);">
+          • <strong>비유</strong>: 건물 입구 안내판에서 "내가 갈 방이 입구에서 몇 걸음(오프셋) 뒤인가?"를 봅니다.<br>
+          • <strong>정석</strong>: <code>GPIO register map</code> 표에서 모드 설정방(<code>MODER</code>)은 <code>Offset 0x00</code>, 출력 전압 스위치방(<code>ODR</code>)은 <code>Offset 0x14</code>임을 확인해 시작주소에 더합니다.
+        </p>
+      </div>
+      <div style="background:#0a1224;border:2px solid var(--emerald);border-radius:16px;padding:20px;">
+        <div style="color:var(--emerald);font-weight:900;font-size:1.08rem;margin-bottom:8px;">STEP 3 · 스위치 칸 찾기 (Bit Field 표)</div>
+        <p style="margin:0;font-size:0.98rem;color:var(--text-muted);">
+          • <strong>비유</strong>: 방 문을 열면 스위치 32개(0번~31번)가 있습니다. "3번 핀(PD3)과 연결된 스위치가 몇 번 칸인가?"를 봅니다.<br>
+          • <strong>정석</strong>: <code>MODER</code>에서는 6~7번 비트(<code>1 &lt;&lt; 6</code>), <code>ODR</code>에서는 3번 비트(<code>1 &lt;&lt; 3</code>)를 켜거나 끕니다.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PART 1: 8 CORE CONCEPTS -->
+  <section class="section-card" id="part1">
+    <div class="section-header">
+      <div class="step-num">01</div>
+      <div>
+        <h2>낯선 전공 용어 8대장 — 큼직한 카드 터치 해부기</h2>
+        <p>아래 8개 카드 중 궁금한 단어를 터치해 보세요. <strong>[왕초보 직관 비유 💡]</strong>와 <strong>[임베디드 공학 정석 📘]</strong>이 동시에 펼쳐집니다.</p>
+      </div>
+    </div>
+
+    <div class="token-grid" role="group" aria-label="코드 조각 선택">
+      <button class="code-token" data-term="hex" type="button">
+        <span>0x... (16진수)</span>
+        <small>① 왜 0x를 붙일까?</small>
+      </button>
+      <button class="code-token" data-term="base" type="button">
+        <span>0x40020C00</span>
+        <small>② 베이스(시작) 주소란?</small>
+      </button>
+      <button class="code-token active" data-term="offset" type="button">
+        <span>+ 0x14 (오프셋)</span>
+        <small>③ 시작주소에 더하는 거리!</small>
+      </button>
+      <button class="code-token" data-term="ul" type="button">
+        <span>UL 접미사</span>
+        <small>④ 왜 숫자 끝에 UL을 쓸까?</small>
+      </button>
+      <button class="code-token" data-term="cast" type="button">
+        <span>(uint32_t *)</span>
+        <small>⑤ 포인터 캐스팅(형변환)이란?</small>
+      </button>
+      <button class="code-token" data-term="volatile" type="button">
+        <span>volatile</span>
+        <small>⑥ 컴파일러 꾀부림 방지!</small>
+      </button>
+      <button class="code-token" data-term="deref" type="button">
+        <span>*( ... ) 맨 앞 별표</span>
+        <small>⑦ 역참조(실제 방문 열기!)</small>
+      </button>
+      <button class="code-token" data-term="register" type="button">
+        <span>GPIOD_ODR</span>
+        <small>⑧ 레지스터(하드웨어 방)</small>
+      </button>
+    </div>
+
+    <div id="term-detail-container" style="background:#080e1c;border:2px solid var(--cyan);border-radius:18px;padding:24px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px;">
+        <h3 id="term-title" style="margin:0;font-size:1.45rem;color:#fff;"></h3>
+        <span id="term-Lecture-ref" style="background:var(--card-raised);border:1px solid var(--cyan);padding:6px 14px;border-radius:999px;font-size:0.9rem;font-weight:800;color:var(--cyan);"></span>
+      </div>
+      <p id="term-summary" style="font-size:1.12rem;color:#fef08a;margin:0 0 18px;font-weight:700;"></p>
+
+      <div class="dual-grid">
+        <div class="analogy-box">
+          <div class="box-tag">💡 왕초보 직관 비유 (쉬운 이미지로 이해하기)</div>
+          <div id="term-analogy"></div>
+        </div>
+        <div class="formal-box">
+          <div class="box-tag">📘 임베디드 공학 정석 (정확한 원리로 이해하기)</div>
+          <div id="term-formal"></div>
+        </div>
+      </div>
+
+      <div id="term-pitfall" style="margin-top:16px;background:rgba(251,113,133,0.14);border:2px solid rgba(251,113,133,0.45);border-radius:12px;padding:14px 18px;font-size:1rem;font-weight:700;color:#fecdd3;"></div>
+    </div>
+
+    <!-- Focus: Two Stars (*) Comparison -->
+    <div style="margin-top:24px;background:var(--bg-soft);border:2px solid var(--border);border-radius:18px;padding:22px;">
+      <h3 style="margin:0 0 14px;font-size:1.22rem;color:var(--amber);">⭐ 초보자가 가장 많이 헷갈리는 질문: "왜 별표(<code>*</code>)가 괄호 안에도 있고 맨 앞에도 두 번 나오나요?"</h3>
+      <div class="dual-grid" style="margin:0;">
+        <div style="background:#080e1c;padding:18px;border-radius:14px;border:2px solid var(--emerald);">
+          <strong style="color:var(--emerald);font-family:var(--mono);font-size:1.12rem;">첫 번째 별표: (volatile uint32_t *) 의 *</strong>
+          <p style="margin:10px 0 0;font-size:1rem;color:var(--text-muted);">
+            • <strong>비유 (명사 — 주소록 신분증)</strong>: 평범한 숫자 <code>0x40020C14</code>에게 <strong>"너는 이제부터 계산용 숫자가 아니라 집 주소록(화살표)이야!"</strong>라고 신분증을 바꿔 달아주는(캐스팅) 기호입니다.<br>
+            • <strong>정석</strong>: 타입 이름 뒤에 붙는 <code>*</code>는 <strong>포인터 타입 선언자(Pointer Type Declarator)</strong>입니다. 아직 문을 열지 않고 '주소값'으로 신분만 바꾼 상태입니다.
+          </p>
+        </div>
+        <div style="background:#080e1c;padding:18px;border-radius:14px;border:2px solid var(--rose);">
+          <strong style="color:var(--rose);font-family:var(--mono);font-size:1.12rem;">두 번째 별표: *( ... ) 의 맨 앞 *</strong>
+          <p style="margin:10px 0 0;font-size:1rem;color:var(--text-muted);">
+            • <strong>비유 (동사 — 방문 열기 명령)</strong>: <strong>"지금 당장 그 주소록 화살표가 가리키는 방으로 찾아가서 방문을 철컥! 열고 안의 32칸 스위치 판을 손으로 잡아라!"</strong>라는 행동 명령입니다.<br>
+            • <strong>정석</strong>: 포인터 수식 앞에 붙는 단항 연산자 <code>*</code>는 <strong>역참조 연산자(Dereference Operator)</strong>입니다. 실제 메모리 공간(L-value)에 접근하여 값을 읽고 쓸 수 있게 합니다.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PART 2: STEP-BY-STEP ADDRESS & POINTER BUILDER -->
+  <section class="section-card" id="part2">
+    <div class="section-header">
+      <div class="step-num">02</div>
+      <div>
+        <h2>"시작주소에다가 오프셋을 더하면~" — 메모리 건물 &amp; 5단계 조립 시뮬레이터</h2>
+        <p>오른쪽 <strong>GPIOD 메모리 건물</strong>에서 원하는 방(층)을 터치하고, 왼쪽 1~5단계 조립 버튼을 순서대로 눌러보세요.</p>
+      </div>
+    </div>
+
+    <div class="builder-layout">
+      <!-- Left: 5 Steps -->
+      <div>
+        <div style="font-size:0.95rem;font-weight:900;color:var(--cyan);margin-bottom:12px;">
+          ▼ 단계별 코드 조립 과정 (큼직한 박스를 순서대로 눌러보세요)
+        </div>
+        <div class="step-btn-list" id="builder-steps">
+          <button class="step-choice-btn" data-step="1" type="button">
+            <div class="title"><span>1단계 · 시작 주소(Base Address) 정의</span> <span>01:09</span></div>
+            <code id="step1-code">#define GPIOD_BASE 0x40020C00UL</code>
+          </button>
+          <button class="step-choice-btn active" data-step="2" type="button">
+            <div class="title"><span>2단계 · 시작주소 + 오프셋(Offset) 더하기 ★</span> <span>04:10</span></div>
+            <code id="step2-code">(0x40020C00UL + 0x14UL)  // 결과: 0x40020C14UL</code>
+          </button>
+          <button class="step-choice-btn" data-step="3" type="button">
+            <div class="title"><span>3단계 · 포인터 캐스팅 + volatile 장착</span> <span>04:46</span></div>
+            <code id="step3-code">(volatile uint32_t *)(0x40020C00UL + 0x14UL)</code>
+          </button>
+          <button class="step-choice-btn" data-step="4" type="button">
+            <div class="title"><span>4단계 · 역참조(*)로 방문 열고 매크로 완성</span> <span>05:05</span></div>
+            <code id="step4-code">#define GPIOD_ODR (*(volatile uint32_t *)(0x40020C00UL + 0x14UL))</code>
+          </button>
+          <button class="step-choice-btn" data-step="5" type="button">
+            <div class="title"><span>5단계 · 구조체(struct) 포인터로 진화!</span> <span>07:47</span></div>
+            <code id="step5-code">GPIOD-&gt;ODR  // ((GPIO_TypeDef *)0x40020C00UL)-&gt;ODR</code>
+          </button>
+        </div>
+
+        <div id="builder-explanation" style="margin-top:16px;background:#080e1c;border:2px solid var(--cyan);border-left:7px solid var(--cyan);border-radius:14px;padding:18px;font-size:1rem;">
+        </div>
+      </div>
+
+      <!-- Right: Interactive Memory Map Building -->
+      <div class="mem-building">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+          <strong style="color:#fff;font-size:1.12rem;">🏢 STM32F767 <code>GPIOD</code> 메모리 건물 (입구: <code>0x40020C00</code>)</strong>
+          <span style="font-size:0.9rem;font-weight:700;color:var(--amber);">👆 아래 층을 직접 터치해 보세요!</span>
+        </div>
+        <p style="margin:0 0 14px;font-size:0.95rem;color:var(--text-muted);">
+          왜 오프셋이 <code>0x00 → 0x04 → 0x08 → 0x0C → 0x10 → 0x14</code>처럼 <strong>4씩</strong> 커질까요?
+          각 레지스터 방 하나가 <strong>32비트 = 4바이트(Byte)</strong> 크기를 차지하므로, 다음 방은 무조건 4바이트 뒤에 있기 때문입니다!
+        </p>
+
+        <div id="mem-rows-container"></div>
+
+        <!-- Live Calculation Formula Box -->
+        <div style="margin-top:16px;background:#132342;border:2px solid var(--cyan);border-radius:14px;padding:18px;">
+          <div style="font-size:0.9rem;color:var(--cyan);font-weight:900;margin-bottom:8px;">
+            📐 강사의 "시작주소에다가 오프셋을 더하면~" 실시간 주소 계산기
+          </div>
+          <div id="calc-formula-display" style="font-family:var(--mono);font-size:1.12rem;color:#fff;font-weight:800;"></div>
+          <div id="calc-reg-desc" style="font-size:0.96rem;color:var(--text-muted);margin-top:8px;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PART 3 (ENHANCED): 1-BIT (ODR) vs 2-BIT (MODER) & BITWISE PLAYGROUND -->
+  <section class="section-card" id="part3">
+    <div class="section-header">
+      <div class="step-num">03</div>
+      <div>
+        <h2>핵심 보완! "왜 같은 PD3 핀인데 MODER는 <code>1 &lt;&lt; 6</code>이고 ODR은 <code>1 &lt;&lt; 3</code>인가요?"</h2>
+        <p>강의 75에서 초보자가 가장 많이 헷갈리는 <strong>1비트 방(ODR) vs 2비트 방(MODER)의 차이</strong>와 <strong>비트 마스킹 연산</strong>을 직접 눌러서 체험해 보세요.</p>
+      </div>
+    </div>
+
+    <!-- Sub-part 3A: 1-bit vs 2-bit Pin Mapper -->
+    <div style="background:#080e1c;border:2px solid var(--amber);border-radius:18px;padding:22px;margin-bottom:26px;">
+      <h3 style="margin:0 0 10px;font-size:1.22rem;color:var(--amber);">
+        🔍 궁금증 해결: 핀 1개가 차지하는 스위치 칸 수가 레지스터마다 다릅니다!
+      </h3>
+      <div class="dual-grid" style="margin-top:10px;margin-bottom:16px;">
+        <div class="analogy-box" style="margin:0;">
+          <div class="box-tag">💡 비유: 2지선다 방(ODR) vs 4지선다 방(MODER)</div>
+          • <strong><code>ODR</code> (출력 데이터 방)</strong>: 질문이 <em>"전기 켤래(1), 끌래(0)?"</em> 2가지뿐이라 핀 1개당 <strong>스위치 1칸</strong>이면 됩니다. 그래서 <strong>PD3 = 3번 비트(<code>1 &lt;&lt; 3</code>)</strong>입니다.<br>
+          • <strong><code>MODER</code> (모드 설정 방)</strong>: 선택지가 <strong>4가지</strong>(입력 <code>00</code>, 출력 <code>01</code>, 대체기능 <code>10</code>, 아날로그 <code>11</code>)라서 핀 1개당 <strong>스위치 2칸씩</strong> 차지합니다! 그래서 <strong>PD3 = 2 × 3 = 6번·7번 비트(<code>1 &lt;&lt; 6</code>)</strong>가 됩니다!
+        </div>
+        <div class="formal-box" style="margin:0;">
+          <div class="box-tag">📘 정석: 비트 필드 폭(Bit-field Width) 공식</div>
+          포트의 <strong>n번 핀 (PDn, n = 0 ~ 15)</strong>을 제어할 때:<br>
+          • <strong>1-Bit 필드 레지스터 (<code>ODR</code>, <code>IDR</code>, <code>OTYPER</code>)</strong>: 목표 비트 = <code>Bit n</code> ➔ <code>(1UL &lt;&lt; n)</code><br>
+          • <strong>2-Bit 필드 레지스터 (<code>MODER</code>, <code>OSPEEDR</code>, <code>PUPDR</code>)</strong>: 목표 비트 쌍 = <code>Bit [2n+1 : 2n]</code> ➔ 출력 모드(<code>01</code>) 설정 시 하위 비트인 <code>2n</code>번 비트를 1로 세팅 <code>(1UL &lt;&lt; (2*n))</code>
+        </div>
+      </div>
+
+      <div style="font-weight:800;color:var(--cyan);margin-bottom:8px;">👇 아래에서 핀 번호(PD0 ~ PD7)를 터치해 보세요! MODER와 ODR의 시프트 숫자가 어떻게 달라지는지 즉시 계산됩니다.</div>
+      <div class="pin-selector-grid" id="pin-mapper-grid">
+        <button class="pin-pick-btn" data-pin="0" type="button">PD0</button>
+        <button class="pin-pick-btn" data-pin="1" type="button">PD1</button>
+        <button class="pin-pick-btn" data-pin="2" type="button">PD2</button>
+        <button class="pin-pick-btn active" data-pin="3" type="button">PD3 ★75강</button>
+        <button class="pin-pick-btn" data-pin="4" type="button">PD4</button>
+        <button class="pin-pick-btn" data-pin="5" type="button">PD5</button>
+        <button class="pin-pick-btn" data-pin="6" type="button">PD6 ★킥보드LED</button>
+        <button class="pin-pick-btn" data-pin="7" type="button">PD7</button>
+      </div>
+      <div id="pin-mapper-result" style="background:#12223d;border:2px solid var(--cyan);border-radius:14px;padding:16px;font-size:1.02rem;"></div>
+    </div>
+
+    <!-- Sub-part 3B: Bitwise Shift & Masking Interactive Switchboard -->
+    <div style="background:#080e1c;border:2px solid var(--border);border-radius:18px;padding:22px;">
+      <h3 style="margin:0 0 12px;font-size:1.22rem;color:var(--cyan);">
+        🎛️ 다른 핀은 건드리지 않고 원하는 핀 스위치만 켜고 끄기 (<code>|=</code> vs <code>&amp;= ~</code> vs <code>=</code>)
+      </h3>
+
+      <div class="btn-group" style="margin-bottom:16px;">
+        <button class="action-btn emerald-active" id="btn-bit-set" type="button">🟢 목표 핀만 1로 켜기: ODR |= (1 &lt;&lt; n)</button>
+        <button class="action-btn" id="btn-bit-clear" type="button">🔴 목표 핀만 0으로 끄기: ODR &amp;= ~(1 &lt;&lt; n)</button>
+        <button class="action-btn rose-active" id="btn-bit-overwrite" type="button">⚠️ 잘못된 단순 대입 비교: ODR = (1 &lt;&lt; n)</button>
+        <button class="action-btn" id="btn-bit-preset" type="button">🔄 초기 상태 복구 (PD1, PD3, PD6 켜짐)</button>
+      </div>
+
+      <div style="font-size:0.95rem;color:var(--amber);font-weight:700;margin-bottom:8px;">
+        👇 아래 8칸의 큼직한 스위치 박스를 직접 손가락/마우스로 터치해도 0(0V)과 1(3.3V)이 바뀝니다! (노란 테두리 = 위에서 선택한 목표 핀)
+      </div>
+      <div class="bit-boxes" id="odr-bit-boxes"></div>
+
+      <div id="bit-op-explanation" style="margin-top:14px;background:#111f38;border:2px solid var(--border);border-radius:14px;padding:18px;font-family:var(--mono);font-size:1rem;line-height:1.75;"></div>
+    </div>
+  </section>
+
+  <!-- PART 4: GIANT SINGLE-COLUMN CIRCUIT & WAVEFORM SIMULATOR -->
+  <section class="section-card" id="part4">
+    <div class="section-header">
+      <div class="step-num">04</div>
+      <div>
+        <h2>초대형 1단 회로도 &amp; 실시간 전류 루프 · 파형 동기화 시뮬레이터</h2>
+        <p>한눈에 시원하게 보이도록 <strong>회로도와 파형 그래프를 각각 전체 가로 폭(1칸)으로 대폭 확대</strong>했습니다. 슬라이더를 밀거나 구간 버튼을 눌러 전류가 흐르는 길을 관찰하세요.</p>
+      </div>
+    </div>
+
+    <!-- Top Control Bar -->
+    <div class="control-bar">
+      <div class="slider-row">
+        <button class="play-btn" id="sim-play-btn" type="button">▶ 자동 재생</button>
+        <label for="sim-slider" style="font-weight:900;font-size:1.05rem;color:var(--cyan);">코드 실행 시간 (t):</label>
+        <input type="range" id="sim-slider" min="0" max="100" step="0.5" value="70">
+        <span id="sim-time-label" style="font-family:var(--mono);font-size:1.15rem;font-weight:900;color:var(--amber);min-width:125px;text-align:right;">t = 70.0 ms</span>
+      </div>
+
+      <div>
+        <div style="font-size:0.9rem;font-weight:800;color:var(--text-muted);margin-bottom:8px;">⚡ 코드 실행 구간 바로가기 (터치하면 해당 순간으로 이동합니다):</div>
+        <div class="btn-group" id="phase-jump-group">
+          <button class="action-btn" data-t="10" type="button">① 초기 리셋 (클럭 OFF)</button>
+          <button class="action-btn" data-t="30" type="button">② RCC 클럭 ON (+0x30)</button>
+          <button class="action-btn" data-t="50" type="button">③ MODER 출력 설정 (+0x00)</button>
+          <button class="action-btn active" data-t="70" type="button">④ ODR[3]=1 HIGH 출력 (+0x14)</button>
+          <button class="action-btn" data-t="90" type="button">⑤ ODR[3]=0 LOW 출력 (+0x14)</button>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid var(--border);padding-top:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+        <div class="btn-group">
+          <span style="font-size:0.9rem;font-weight:800;color:var(--amber);align-self:center;margin-right:4px;">🔌 외부 회로 모드 선택:</span>
+          <button class="action-btn active" id="mode-btn-ah" type="button">모드 A: 75강 기본형 (Active-High LED)</button>
+          <button class="action-btn" id="mode-btn-al" type="button">모드 B: 72·76강 보드형 (Active-Low Sink)</button>
+          <button class="action-btn" id="mode-btn-bldc" type="button">모드 C: 전동킥보드 실전 (게이트 드라이버 → BLDC)</button>
+        </div>
+
+        <button class="action-btn emerald-active" id="toggle-volatile" type="button">
+          🛡️ volatile 키워드: ON (정상 출력)
+        </button>
+      </div>
+    </div>
+
+    <!-- Single-Column Giant Stack: Circuit Top, Waveform Bottom -->
+    <div class="sim-stack">
+
+      <!-- TOP FULL-WIDTH PANEL: GIANT SVG CIRCUIT DIAGRAM -->
+      <div class="sim-panel-full">
+        <div class="panel-title">
+          <span>🔍 [전체 폭 확대 회로도] STM32F767 메모리 레지스터 ➔ GPIO Push-Pull 출력단 ➔ 외부 부하 전류 루프</span>
+          <span id="svg-mode-badge" style="background:var(--amber-soft);border:1px solid var(--amber);color:var(--amber);padding:4px 12px;border-radius:999px;font-size:0.9rem;">모드 A: Active-High</span>
+        </div>
+
+        <svg id="circuit-svg" viewBox="0 0 1180 500" style="width:100%;height:auto;min-height:320px;background:#040811;border:2px solid #223556;border-radius:16px;display:block;">
+          <!-- 1. BACKGROUND BOXES FIRST (Z-Order Bottom so nothing gets clipped!) -->
+          <rect x="18" y="20" width="660" height="460" rx="18" fill="#0b1528" stroke="#334e7b" stroke-width="2.5" stroke-dasharray="8 6"/>
+          <rect x="740" y="20" width="422" height="460" rx="18" fill="#081120" stroke="#475569" stroke-width="2"/>
+
+          <!-- 2. NON-OVERLAPPING SECTION HEADERS -->
+          <text x="36" y="52" fill="#38bdf8" font-size="18" font-weight="900" font-family="sans-serif">STM32F767 내부 레지스터</text>
+          <text x="462" y="52" fill="#cbd5e1" font-size="17" font-weight="900" font-family="sans-serif">GPIO 출력단 (Push-Pull)</text>
+          <text x="764" y="52" fill="#fbbf24" font-size="18" font-weight="900" font-family="sans-serif">외부 연결 회로 (보드 LED &amp; 킥보드 인버터)</text>
+
+          <!-- 3. LEFT COLUMN INSIDE MCU: 3 REGISTERS (Widened to 360px so text never overflows) -->
+          <!-- ① RCC_AHB1ENR -->
+          <g id="svg-rcc-box" opacity="1">
+            <rect x="36" y="76" width="360" height="96" rx="12" fill="#132441" stroke="#34d399" stroke-width="2.5"/>
+            <text x="52" y="103" fill="#94a3b8" font-size="13.5" font-weight="bold" font-family="monospace">① 클럭 레지스터 (RCC_BASE + 0x30UL)</text>
+            <text x="52" y="129" fill="#ffffff" font-size="16" font-weight="bold" font-family="monospace">주소: 0x40023830 (AHB1ENR)</text>
+            <text id="svg-rcc-bit" x="52" y="156" fill="#34d399" font-size="15.5" font-weight="900" font-family="monospace">GPIODEN (Bit 3) = 1 (클럭 ON)</text>
+          </g>
+
+          <!-- ② GPIOD_MODER -->
+          <g id="svg-moder-box" opacity="1">
+            <rect x="36" y="192" width="360" height="96" rx="12" fill="#132441" stroke="#fbbf24" stroke-width="2.5"/>
+            <text x="52" y="219" fill="#94a3b8" font-size="13.5" font-weight="bold" font-family="monospace">② 모드 레지스터 (GPIOD_BASE + 0x00UL)</text>
+            <text x="52" y="245" fill="#ffffff" font-size="16" font-weight="bold" font-family="monospace">주소: 0x40020C00 (MODER)</text>
+            <text id="svg-moder-bit" x="52" y="272" fill="#fbbf24" font-size="15.5" font-weight="900" font-family="monospace">MODER3[7:6] = 01 (출력 모드)</text>
+          </g>
+
+          <!-- ③ GPIOD_ODR -->
+          <g id="svg-odr-box" opacity="1">
+            <rect x="36" y="308" width="360" height="110" rx="12" fill="#18233c" stroke="#fb7185" stroke-width="3"/>
+            <text x="52" y="336" fill="#fda4af" font-size="13.5" font-weight="bold" font-family="monospace">③ 출력 데이터 (GPIOD_BASE + 0x14UL)</text>
+            <text x="52" y="362" fill="#ffffff" font-size="16" font-weight="bold" font-family="monospace">주소: 0x40020C14 (GPIOD_ODR)</text>
+            <text id="svg-odr-bit" x="52" y="396" fill="#fb7185" font-size="17" font-weight="900" font-family="monospace">ODR[3] = 1 (HIGH 3.3V 명령)</text>
+          </g>
+
+          <!-- 4. MIDDLE COLUMN INSIDE MCU: PUSH-PULL P-MOS / N-MOS STAGE (Center X = 545) -->
+          <text x="545" y="92" text-anchor="middle" fill="#fb7185" font-size="16.5" font-weight="900">MCU VDD (+3.3V)</text>
+          <line x1="545" y1="102" x2="545" y2="138" stroke="#64748b" stroke-width="5"/>
+
+          <!-- High-Side P-MOS -->
+          <g id="svg-pmos" opacity="1">
+            <rect x="465" y="138" width="160" height="78" rx="12" fill="#331424" stroke="#fb7185" stroke-width="3"/>
+            <text x="545" y="170" text-anchor="middle" fill="#fecdd3" font-size="15.5" font-weight="900">상단 P-MOS 스위치</text>
+            <text id="svg-pmos-state" x="545" y="198" text-anchor="middle" fill="#fb7185" font-size="15" font-weight="900">ON (3.3V 도통)</text>
+          </g>
+
+          <!-- Center Node to PD3 Pin -->
+          <line x1="545" y1="216" x2="545" y2="305" stroke="#94a3b8" stroke-width="5"/>
+          <line x1="545" y1="260" x2="740" y2="260" stroke="#94a3b8" stroke-width="6"/>
+
+          <!-- Low-Side N-MOS -->
+          <g id="svg-nmos" opacity="0.22">
+            <rect x="465" y="305" width="160" height="78" rx="12" fill="#10273f" stroke="#38bdf8" stroke-width="3"/>
+            <text x="545" y="337" text-anchor="middle" fill="#bae6fd" font-size="15.5" font-weight="900">하단 N-MOS 스위치</text>
+            <text id="svg-nmos-state" x="545" y="365" text-anchor="middle" fill="#38bdf8" font-size="15" font-weight="900">OFF (차단됨)</text>
+          </g>
+
+          <!-- Internal GND -->
+          <line x1="545" y1="383" x2="545" y2="420" stroke="#64748b" stroke-width="5"/>
+          <line x1="515" y1="420" x2="575" y2="420" stroke="#64748b" stroke-width="4"/>
+          <line x1="525" y1="430" x2="565" y2="430" stroke="#64748b" stroke-width="4"/>
+          <text x="545" y="455" text-anchor="middle" fill="#94a3b8" font-size="15" font-weight="bold">MCU 내부 GND (0V)</text>
+
+          <!-- Control Signal Lines from Registers to Switches -->
+          <path d="M 396 240 L 448 240" stroke="#fbbf24" stroke-width="2.5" stroke-dasharray="5 5"/>
+          <path d="M 396 365 L 432 365 L 432 177 L 465 177" fill="none" stroke="#fb7185" stroke-width="3"/>
+          <path d="M 432 365 L 432 344 L 465 344" fill="none" stroke="#38bdf8" stroke-width="3"/>
+
+          <!-- 5. EXTERNAL CIRCUIT MODES (Right Area: x = 740 ~ 1162) -->
+          <!-- EXTERNAL MODE A: Active-High (PD3 -> 330ohm -> LED -> GND) -->
+          <g id="svg-ext-ah">
+            <line x1="730" y1="260" x2="915" y2="260" stroke="#94a3b8" stroke-width="5"/>
+            <line x1="915" y1="260" x2="915" y2="295" stroke="#94a3b8" stroke-width="5"/>
+            <!-- 330 Ohm Resistor -->
+            <rect x="875" y="295" width="80" height="38" rx="8" fill="#1e293b" stroke="#cbd5e1" stroke-width="2.5"/>
+            <text x="915" y="320" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold" font-family="monospace">330 Ω</text>
+            <line x1="915" y1="333" x2="915" y2="358" stroke="#94a3b8" stroke-width="5"/>
+            <!-- LED -->
+            <circle id="svg-ah-led" cx="915" cy="388" r="30" fill="#fb7185" stroke="#ffe4e6" stroke-width="3.5"/>
+            <text x="915" y="395" text-anchor="middle" fill="#fff" font-size="18" font-weight="900">LED</text>
+            <text x="958" y="376" fill="#fda4af" font-size="15" font-weight="bold">애노드(A): PD3쪽</text>
+            <text x="958" y="404" fill="#94a3b8" font-size="15" font-weight="bold">캐소드(K): GND쪽</text>
+            <line x1="915" y1="418" x2="915" y2="442" stroke="#94a3b8" stroke-width="5"/>
+            <line x1="885" y1="442" x2="945" y2="442" stroke="#94a3b8" stroke-width="4"/>
+            <line x1="895" y1="451" x2="935" y2="451" stroke="#94a3b8" stroke-width="4"/>
+            <text x="915" y="472" text-anchor="middle" fill="#94a3b8" font-size="15" font-weight="bold">외부 GND (0V)</text>
+          </g>
+
+          <!-- EXTERNAL MODE B: Active-Low (+3.3V -> LED -> 330ohm -> PD3 Sink) -->
+          <g id="svg-ext-al" style="display:none;">
+            <text x="915" y="92" text-anchor="middle" fill="#38bdf8" font-size="17" font-weight="900">외부 전원 (+3.3V)</text>
+            <line x1="915" y1="102" x2="915" y2="128" stroke="#94a3b8" stroke-width="5"/>
+            <!-- LED -->
+            <circle id="svg-al-led" cx="915" cy="158" r="30" fill="#38bdf8" stroke="#e0f2fe" stroke-width="3.5"/>
+            <text x="915" y="165" text-anchor="middle" fill="#05101e" font-size="18" font-weight="900">LED</text>
+            <text x="958" y="146" fill="#7dd3fc" font-size="15" font-weight="bold">애노드(A): +3.3V</text>
+            <text x="958" y="174" fill="#94a3b8" font-size="15" font-weight="bold">캐소드(K): PD3쪽</text>
+            <line x1="915" y1="188" x2="915" y2="206" stroke="#94a3b8" stroke-width="5"/>
+            <!-- 330 Ohm Resistor -->
+            <rect x="875" y="206" width="80" height="36" rx="8" fill="#1e293b" stroke="#cbd5e1" stroke-width="2.5"/>
+            <text x="915" y="230" text-anchor="middle" fill="#fff" font-size="16" font-weight="bold" font-family="monospace">330 Ω</text>
+            <line x1="915" y1="242" x2="915" y2="260" stroke="#94a3b8" stroke-width="5"/>
+            <line x1="730" y1="260" x2="915" y2="260" stroke="#94a3b8" stroke-width="5"/>
+          </g>
+
+          <!-- EXTERNAL MODE C: Electric Kickboard BLDC Gate Driver & Inverter -->
+          <g id="svg-ext-bldc" style="display:none;">
+            <line x1="730" y1="260" x2="785" y2="260" stroke="#94a3b8" stroke-width="5"/>
+            <!-- Gate Driver IC -->
+            <rect id="svg-gd-box" x="785" y="212" width="150" height="96" rx="12" fill="#1e293b" stroke="#fbbf24" stroke-width="3"/>
+            <text x="860" y="242" text-anchor="middle" fill="#fbbf24" font-size="15" font-weight="900">게이트 드라이버</text>
+            <text x="860" y="264" text-anchor="middle" fill="#fff" font-size="13.5" font-family="monospace">IR2101 / UCC27211</text>
+            <text id="svg-gd-out" x="860" y="290" text-anchor="middle" fill="#34d399" font-size="14" font-weight="bold">HO 출력: 12V 증폭</text>
+
+            <!-- Gate Line to Power MOSFET -->
+            <line x1="935" y1="260" x2="985" y2="260" stroke="#fbbf24" stroke-width="4"/>
+            <!-- DC-Link +36V~48V -->
+            <text x="1045" y="102" text-anchor="middle" fill="#fb7185" font-size="16" font-weight="900">배터리 DC-Link (+36V)</text>
+            <line x1="1045" y1="112" x2="1045" y2="210" stroke="#fb7185" stroke-width="5"/>
+            <!-- Power MOSFET -->
+            <rect id="svg-fet-box" x="985" y="210" width="120" height="95" rx="12" fill="#331424" stroke="#fb7185" stroke-width="3"/>
+            <text x="1045" y="242" text-anchor="middle" fill="#fff" font-size="15" font-weight="900">인버터 MOSFET</text>
+            <text x="1045" y="265" text-anchor="middle" fill="#fda4af" font-size="13.5" font-family="monospace">V_GS &gt; V_th</text>
+            <text id="svg-fet-state" x="1045" y="290" text-anchor="middle" fill="#34d399" font-size="15" font-weight="900">ON (도통!)</text>
+
+            <!-- BLDC Motor -->
+            <line x1="1045" y1="305" x2="1045" y2="355" stroke="#94a3b8" stroke-width="5"/>
+            <circle id="svg-motor-circle" cx="1045" cy="395" r="38" fill="#132a4a" stroke="#38bdf8" stroke-width="3.5"/>
+            <text x="1045" y="392" text-anchor="middle" fill="#fff" font-size="15" font-weight="900">BLDC</text>
+            <text x="1045" y="412" text-anchor="middle" fill="#38bdf8" font-size="14" font-weight="bold">모터</text>
+          </g>
+
+          <!-- 6. ANIMATED CURRENT LOOPS -->
+          <!-- Loop 1: Active-High Source Current -->
+          <path id="loop-source" class="current-loop active" stroke="#fb7185"
+                d="M 545 102 L 545 260 L 915 260 L 915 442"/>
+          <!-- Loop 2: Active-Low Sink Current -->
+          <path id="loop-sink" class="current-loop" stroke="#38bdf8"
+                d="M 915 102 L 915 260 L 545 260 L 545 420"/>
+          <!-- Loop 3: BLDC Gate Drive + Motor Current -->
+          <path id="loop-bldc-gate" class="current-loop" stroke="#fbbf24"
+                d="M 545 102 L 545 260 L 985 260"/>
+          <path id="loop-bldc-power" class="current-loop" stroke="#34d399"
+                d="M 1045 112 L 1045 433"/>
+
+          <!-- 7. TOP-MOST LAYER: PHYSICAL PD3 PIN PAD & VOLTAGE BADGE (Never clipped!) -->
+          <rect x="652" y="182" width="104" height="38" rx="8" fill="#060b16" stroke="#fbbf24" stroke-width="2.5"/>
+          <text id="svg-pin-volt" x="704" y="207" text-anchor="middle" fill="#fbbf24" font-size="17" font-weight="900" font-family="monospace">3.3V</text>
+          <rect x="662" y="232" width="84" height="56" rx="10" fill="#fbbf24" stroke="#ffffff" stroke-width="3"/>
+          <text x="704" y="267" text-anchor="middle" fill="#05101e" font-size="21" font-weight="900">PD3</text>
+        </svg>
+
+        <!-- Real-time Status Description Box directly under Giant SVG -->
+        <div id="sim-status-card" style="margin-top:18px;background:#0d1930;border:2px solid var(--cyan);border-radius:16px;padding:20px;font-size:1.04rem;line-height:1.75;">
+        </div>
+      </div>
+
+      <!-- BOTTOM FULL-WIDTH PANEL: GIANT SYNCHRONIZED WAVEFORM CANVAS -->
+      <div class="sim-panel-full">
+        <div class="panel-title">
+          <span>📈 [전체 폭 확대 파형 그래프] 클럭·모드 ➔ ODR[3] 비트 ➔ PD3 핀 실제 출력 전압 (클릭·드래그로 시간 이동)</span>
+          <span style="font-size:0.9rem;color:var(--amber);">👆 그래프 위를 손가락이나 마우스로 좌우로 문질러 보세요!</span>
+        </div>
+
+        <canvas id="waveform-canvas" width="1120" height="420" style="width:100%;height:auto;background:#040811;border:2px solid #223556;border-radius:16px;cursor:ew-resize;touch-action:none;display:block;"></canvas>
+
+        <div style="margin-top:12px;font-size:0.95rem;color:var(--text-muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+          <span>🔴 <strong>굵은 실선</strong>: <code>volatile</code> 적용 시 실제 하드웨어 핀 전압 파형</span>
+          <span>⚪ <strong>회색 점선</strong>: <code>volatile</code> 누락 시 컴파일러 최적화로 인해 쓰기 명령이 증발한 파형</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Summary Table -->
+    <div style="margin-top:26px;">
+      <h3 style="margin:0 0 10px;font-size:1.2rem;color:var(--cyan);">📋 구간별 레지스터 주소·스위치·바이어스 요약표 (행을 터치하면 해당 구간으로 즉시 이동합니다)</h3>
+      <div style="overflow-x:auto;">
+        <table class="summary-table" id="sim-summary-table">
+          <thead>
+            <tr>
+              <th>구간 (t)</th>
+              <th>실행되는 75강 C 코드</th>
+              <th>접근 물리 주소 (<code>Base + Offset</code>)</th>
+              <th>내부 스위치 (P-MOS / N-MOS)</th>
+              <th>바이어스 조건 (단자 간 상대 전위차) &amp; 핀 전압</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-t="10">
+              <td><strong>① 0~20ms</strong><br><small>초기 리셋</small></td>
+              <td><code>// 클럭 공급 전 초기 상태</code></td>
+              <td>접근 불가 (RCC 클럭 OFF)</td>
+              <td>P-MOS: OFF / N-MOS: OFF</td>
+              <td>High-Z (고임피던스 부동 상태) · 전류 흐르지 않음</td>
+            </tr>
+            <tr data-t="30">
+              <td><strong>② 20~40ms</strong><br><small>클럭 활성화</small></td>
+              <td><code>RCC_AHB1ENR |= (1 &lt;&lt; 3);</code></td>
+              <td><code>0x40023800 + 0x30 = 0x40023830</code></td>
+              <td>GPIOD 건물 문 열림 (입력 모드)</td>
+              <td>클럭 공급 시작 · 출력 스위치는 아직 분리됨</td>
+            </tr>
+            <tr data-t="50">
+              <td><strong>③ 40~60ms</strong><br><small>출력 모드 설정</small></td>
+              <td><code>GPIOD_MODER |= (1 &lt;&lt; 6);</code></td>
+              <td><code>0x40020C00 + 0x00 = 0x40020C00</code></td>
+              <td>P-MOS: OFF / <strong>N-MOS: ON</strong> (초기 ODR=0)</td>
+              <td>V<sub>PD3</sub> = 0.0V (LOW 구동 시작)</td>
+            </tr>
+            <tr data-t="70" class="active-row">
+              <td><strong>④ 60~80ms</strong><br><small>HIGH (3.3V) 출력</small></td>
+              <td><code>GPIOD_ODR |= (1 &lt;&lt; 3);</code></td>
+              <td><code>0x40020C00 + 0x14 = 0x40020C14</code></td>
+              <td><strong>P-MOS: ON</strong> / N-MOS: OFF</td>
+              <td>V<sub>PD3</sub> = 3.3V · Active-High 시 V<sub>A</sub>(3.3V) &gt; V<sub>K</sub>(0V) 순방향 도통!</td>
+            </tr>
+            <tr data-t="90">
+              <td><strong>⑤ 80~100ms</strong><br><small>LOW (0V) 출력</small></td>
+              <td><code>GPIOD_ODR &amp;= ~(1 &lt;&lt; 3);</code></td>
+              <td><code>0x40020C00 + 0x14 = 0x40020C14</code></td>
+              <td>P-MOS: OFF / <strong>N-MOS: ON</strong></td>
+              <td>V<sub>PD3</sub> = 0.0V · Active-Low 시 V<sub>A</sub>(3.3V) &gt; V<sub>K</sub>(0V) 싱크 도통!</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- PART 5: SELF-CHECK QUIZ -->
+  <section class="section-card" id="part5">
+    <div class="section-header">
+      <div class="step-num">05</div>
+      <div>
+        <h2>자가점검 퀴즈 4문제 (터치해서 정답 확인하기)</h2>
+        <p>오늘 배운 오프셋, 캐스팅, 역참조, 그리고 1비트 vs 2비트 차이가 완전히 이해되었는지 확인해 보세요.</p>
+      </div>
+    </div>
+
+    <div class="quiz-card">
+      <strong>Q1. 강사가 말한 "시작주소(Base Address)에다가 오프셋(Offset)을 더한다"는 것의 정확한 의미는 무엇인가요?</strong>
+      <div class="quiz-options" data-answer="1">
+        <button class="quiz-opt" data-idx="0" type="button">① 레지스터 안에 들어있는 스위치 값(0 또는 1)에 숫자를 더해서 전압을 높인다.</button>
+        <button class="quiz-opt" data-idx="1" type="button">② 주변장치 건물의 시작 주소(예: GPIOD 0x40020C00)에서 목표 레지스터 방이 떨어진 거리(예: ODR +0x14)를 더해 그 레지스터의 고유 물리 주소를 구한다.</button>
+        <button class="quiz-opt" data-idx="2" type="button">③ CPU의 클럭 속도를 더 빠르게 만들기 위해 주파수를 더한다.</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-card">
+      <strong>Q2. <code>(*(volatile uint32_t *)(0x40020C14UL))</code> 에서 괄호 안의 <code>(volatile uint32_t *)</code>와 맨 앞의 <code>*</code>의 역할을 바르게 짝지은 것은?</strong>
+      <div class="quiz-options" data-answer="2">
+        <button class="quiz-opt" data-idx="0" type="button">① 둘 다 곱셈 연산자라서 주소를 두 번 곱해준다.</button>
+        <button class="quiz-opt" data-idx="1" type="button">② 괄호 안은 값을 0으로 지우는 역할이고, 맨 앞의 별표는 주소를 숨기는 역할이다.</button>
+        <button class="quiz-opt" data-idx="2" type="button">③ 괄호 안의 <code>(volatile uint32_t *)</code>는 단순 숫자를 '32비트 메모리 주소(포인터)'로 신분증을 바꿔주는 캐스팅이고, 맨 앞의 <code>*</code>는 그 주소의 방문을 열고 실제 값에 접근하는 역참조 연산자이다.</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-card">
+      <strong>Q3. 똑같은 <code>PD3</code>(3번 핀)을 제어하는데 왜 <code>GPIOD_ODR</code>에서는 <code>1 &lt;&lt; 3</code>(3번 비트)을 쓰고, <code>GPIOD_MODER</code>에서는 <code>1 &lt;&lt; 6</code>(6번 비트)을 쓰나요?</strong>
+      <div class="quiz-options" data-answer="0">
+        <button class="quiz-opt" data-idx="0" type="button">① ODR은 핀당 1비트(0/1)만 쓰지만, MODER는 4가지 모드(00, 01, 10, 11)를 표현하기 위해 핀당 2비트씩 차지하므로 3번 핀은 2×3 = 6번·7번 비트를 쓰기 때문이다.</button>
+        <button class="quiz-opt" data-idx="1" type="button">② MODER 레지스터의 크기가 ODR보다 2배 더 큰 64비트이기 때문이다.</button>
+        <button class="quiz-opt" data-idx="2" type="button">③ 오타이며 원래 둘 다 1 &lt;&lt; 3을 써야 한다.</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+
+    <div class="quiz-card">
+      <strong>Q4. GPIO 레지스터들의 오프셋이 <code>0x00, 0x04, 0x08, 0x0C...</code>처럼 4씩 증가하는 이유는 무엇인가요?</strong>
+      <div class="quiz-options" data-answer="0">
+        <button class="quiz-opt" data-idx="0" type="button">① STM32는 32비트 MCU라서 레지스터 방 하나가 32비트 = 4바이트(Byte) 크기를 차지하기 때문이다.</button>
+        <button class="quiz-opt" data-idx="1" type="button">② GPIO 핀이 총 4개밖에 없기 때문이다.</button>
+        <button class="quiz-opt" data-idx="2" type="button">③ 16진수에서는 숫자 1, 2, 3을 쓸 수 없기 때문이다.</button>
+      </div>
+      <div class="quiz-feedback"></div>
+    </div>
+  </section>
+
+  <!-- PART 6: FACT-CHECK & SOURCE CODE VERIFICATION REPORT -->
+  <section class="section-card" id="part6">
+    <div class="section-header">
+      <div class="step-num">06</div>
+      <div>
+        <h2>🔍 팩트 검증 &amp; 공식 데이터시트·원본 소스코드 1:1 대조 리포트</h2>
+        <p>출처 등급 원칙(<strong>ST 공식 RM0410 &amp; CMSIS 헤더 &gt; 강사 원본 코드 &gt; 강의 스크립트 &gt; AI 요약 노트</strong>)에 따라 모든 수치와 개념을 교차 검증했습니다.</p>
+      </div>
+    </div>
+
+    <div style="overflow-x:auto;margin-bottom:20px;">
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>검증 항목</th>
+            <th>이 학습자료의 수치 / 설명</th>
+            <th>ST 공식 헤더 (<code>stm32f767xx.h</code>)</th>
+            <th>강사 75강 원본 (<code>2.LED_OnOff_Register/main.c</code>)</th>
+            <th>판정</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>GPIOD 시작 주소</strong></td>
+            <td><code>0x40020C00UL</code></td>
+            <td><code>AHB1PERIPH_BASE(0x40020000UL) + 0x0C00UL</code> (줄 1396)</td>
+            <td><code>#define GPIOD_BASE 0x40020C00UL</code> (줄 3)</td>
+            <td><strong style="color:var(--emerald);">✅ 100% 일치</strong></td>
+          </tr>
+          <tr>
+            <td><strong>RCC 시작 주소</strong></td>
+            <td><code>0x40023800UL</code></td>
+            <td><code>AHB1PERIPH_BASE(0x40020000UL) + 0x3800UL</code> (줄 1405)</td>
+            <td><code>#define RCC_BASE 0x40023800UL</code> (줄 4)</td>
+            <td><strong style="color:var(--emerald);">✅ 100% 일치</strong></td>
+          </tr>
+          <tr>
+            <td><strong>GPIO 6대 오프셋</strong></td>
+            <td><code>MODER(0x00), OTYPER(0x04), OSPEEDR(0x08), PUPDR(0x0C), IDR(0x10), ODR(0x14)</code></td>
+            <td><code>GPIO_TypeDef</code> 구조체 주석 (줄 626~631)</td>
+            <td>매크로(줄 7~12) 및 구조체(줄 28~38)</td>
+            <td><strong style="color:var(--emerald);">✅ 100% 일치</strong></td>
+          </tr>
+          <tr>
+            <td><strong>RCC_AHB1ENR 오프셋</strong></td>
+            <td><code>0x30UL</code> (<code>0x40023830</code>)</td>
+            <td><code>RCC_TypeDef</code> 내 <code>AHB1ENR</code> (줄 762)</td>
+            <td><code>#define RCC_AHB1ENR_OFFSET 0x30UL</code> (줄 15)</td>
+            <td><strong style="color:var(--emerald);">✅ 100% 일치</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="dual-grid" style="margin-top:0;">
+      <div style="background:#081120;border:2px solid var(--rose);border-radius:16px;padding:20px;">
+        <strong style="color:var(--rose);font-size:1.08rem;">🛠️ 강의 노트·스크립트에서 바로잡은 오류 3가지</strong>
+        <ul style="margin:10px 0 0;padding-left:20px;color:var(--text-muted);font-size:0.96rem;">
+          <li><strong>레퍼런스 매뉴얼 번호 교정</strong>: 기존 요약 노트(<code>75.pointer.md</code>)에는 <code>RM0385</code>(STM32F74/F75용)로 잘못 기재되어 있으나, 실제 사용 칩인 <strong>STM32F767VIT6의 공식 매뉴얼은 <code>RM0410</code></strong>입니다.</li>
+          <li><strong>음성인식 오타 교정</strong>: 스크립트의 <code>unsigned wrong</code> ➔ <code>unsigned long(UL)</code>, <code>0s04</code> ➔ <code>0x04</code>, <code>모두ER</code> ➔ <code>MODER</code>로 원본 C 코드와 대조하여 교정했습니다.</li>
+          <li><strong>보드 핀 변경(PD3 vs PC6) 구분</strong>: 75강 강의 화면은 초기 보드 기준 <code>GPIOD</code>의 <code>PD3</code>을 예시로 들지만, 실제 킥보드 펌웨어(<code>GPIO.c</code>, <code>1.LED_OnOff/main.c</code>)에서는 Fault LED가 <strong><code>GPIOC</code>의 <code>PC6</code> (Active-Low)</strong>에 연결되어 있음을 명확히 구분했습니다.</li>
+        </ul>
+      </div>
+      <div style="background:#081120;border:2px solid var(--amber);border-radius:16px;padding:20px;">
+        <strong style="color:var(--amber);font-size:1.08rem;">💡 강사 약식 코드(<code>|=</code>) vs 실전 펌웨어 안전 코드 비교</strong>
+        <p style="margin:10px 0 0;color:var(--text-muted);font-size:0.96rem;">
+          • <strong>75강 강사 코드 (<code>2.LED_OnOff_Register/main.c:41</code>)</strong>:<br>
+          <code>GPIOD-&gt;MODER |= (1 &lt;&lt; 6);</code><br>
+          ➔ <code>GPIOD</code>는 리셋 직후 <code>MODER</code> 초기값이 <code>0x00000000</code>(모두 <code>00</code>)이라서 6번 비트만 1로 켜도 <code>01</code>(출력)이 됩니다. 하지만 만약 이전에 <code>10</code>(대체기능)이 들어있었다면 <code>|=</code>만 쓰면 <code>11</code>(아날로그)이 되는 버그가 생깁니다!<br><br>
+          • <strong>전동킥보드 실전 펌웨어 코드 (<code>Core/Src/GPIO.c:10-11</code>)</strong>:<br>
+          <code>GPIOC-&gt;MODER &amp;= ~0x00003000; // 먼저 두 비트를 00으로 청소!</code><br>
+          <code>GPIOC-&gt;MODER |=  0x00001000; // 그다음 01(출력)로 안전하게 설정!</code>
+        </p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* =========================================================================
+     PART 1: 8 CORE CONCEPTS DATA & INTERACTION
+     ========================================================================= */
+  const TERMS = {
+    hex: {
+      title: '① 16진수 (Hexadecimal, 접두사 0x)와 비트·바이트',
+      ref: '강의 74 & 75 [00:50]',
+      summary: '컴퓨터의 32자리 스위치(0과 1)를 사람이 한눈에 읽기 쉽게 4개씩 묶어 한 글자로 줄여 쓴 숫자 표기법입니다.',
+      analogy: `
+        • <strong>비트(Bit)</strong>: 켜거나(1) 끌 수 있는(0) <strong>전구 스위치 1개</strong>입니다.<br>
+        • <strong>바이트(Byte)</strong>: 스위치 <strong>8개를 한 줄로 묶은 소형 스위치 박스</strong>입니다 (1 Byte = 8 Bits).<br>
+        • <strong>32비트 레지스터</strong>: 스위치 <strong>32개(4바이트)</strong>가 들어있는 대형 스위치 판입니다.<br>
+        • <strong>왜 <code>0x</code>를 쓰나요?</strong> 스위치 32개를 <code>0100000000000010...</code>으로 쓰면 너무 길어서 눈이 아픕니다! 그래서 스위치 4개씩 묶어 한 글자(0~9, A~F)로 압축하고 앞에 <strong>"이건 16진수야!"라는 표시로 <code>0x</code></strong>를 붙입니다.
+      `,
+      formal: `
+        • <strong>Bit &amp; Byte</strong>: 이진법(Binary)의 최소 단위가 비트이며, 메모리 주소 지정의 최소 단위는 <strong>1 Byte(8 bits)</strong>입니다.<br>
+        • <strong>32-bit Word</strong>: STM32F767(ARM Cortex-M7)의 기본 레지스터 폭과 주소 버스는 <strong>32비트(4 Bytes)</strong>입니다.<br>
+        • <strong>16진수(Hexadecimal)</strong>: 2<sup>4</sup> = 16이므로 16진수 한 자리는 이진수 <strong>4비트(1 Nibble)와 정확히 1:1 대응</strong>됩니다. 따라서 32비트 주소나 데이터는 항상 <code>0x</code> 뒤에 8자리 16진수(예: <code>0x40020C00</code>)로 왜곡 없이 간결하게 표현합니다.
+      `,
+      pitfall: '⚠️ 초보 함정: 0x14는 십진수 14가 아닙니다! (16 × 1) + 4 = 십진수로 20(바이트)을 뜻합니다.'
+    },
+    base: {
+      title: '② 베이스 주소 (Base Address, 시작 주소)',
+      ref: '강의 75 [00:55 ~ 01:45]',
+      summary: 'MCU 안에서 특정 주변장치(예: GPIOD 건물, RCC 건물)가 시작되는 가장 첫 번째 대표 번지수입니다.',
+      analogy: `
+        • 대학교 캠퍼스에 비유하면 <strong>"공과대학 D동(GPIOD) 건물의 정문 입구 주소"</strong>가 바로 <code>GPIOD_BASE (0x40020C00)</code>입니다.<br>
+        • D동 안에 있는 어떤 실험실(레지스터)을 찾아가든, 일단은 <strong>무조건 D동 정문 입구(시작 주소)에서부터 출발</strong>해야 합니다.
+      `,
+      formal: `
+        • <strong>Memory-Mapped I/O 아키텍처</strong>에서 각 주변장치 블록(Peripheral Block: GPIOA~GPIOK, RCC, TIM 등)에 할당된 연속된 물리 주소 영역의 <strong>시작 물리 주소(Starting Physical Address)</strong>입니다.<br>
+        • STM32F767 레퍼런스 매뉴얼(RM0410) 메모리 맵에서 AHB1 버스에 연결된 <code>GPIOD</code>의 베이스 주소는 <code>0x40020C00</code>, <code>RCC</code>의 베이스 주소는 <code>0x40023800</code>으로 고정되어 있습니다.
+      `,
+      pitfall: '⚠️ 주의: 베이스 주소만으로는 아직 어떤 구체적인 작업을 할지 알 수 없습니다. 건물 입구에 서 있을 뿐, 몇 호실로 들어갈지(Offset)를 더해줘야 합니다.'
+    },
+    offset: {
+      title: '③ 오프셋 (Offset, 상대적 거리)',
+      ref: '강의 75 [02:22 ~ 04:46]',
+      summary: '강사가 말한 "시작주소에다가 뭐를 더하면~"의 주인공! 베이스 주소(건물 입구)에서 목표 레지스터 방까지 몇 바이트 떨어져 있는지를 나타내는 거리입니다.',
+      analogy: `
+        • D동 건물 입구(<code>GPIOD_BASE</code>)에 들어섰습니다. 이제 복도 안내판을 봅니다:<br>
+        &nbsp;&nbsp;- <strong>모드 설정방(MODER)</strong>: 입구에서 <strong>0걸음(<code>+0x00</code>)</strong> ➔ 입구 바로 앞 첫 번째 방!<br>
+        &nbsp;&nbsp;- <strong>출력 타입방(OTYPER)</strong>: 입구에서 <strong>4걸음(<code>+0x04</code>)</strong> 뒤!<br>
+        &nbsp;&nbsp;- <strong>전기 출력 스위치방(ODR)</strong>: 입구에서 <strong>20걸음(16진수 <code>+0x14</code>)</strong> 뒤!<br>
+        • 즉, <strong>[건물 입구 주소 + 걸어간 거리(오프셋) = 내가 찾는 방의 정확한 주소]</strong>가 됩니다!
+      `,
+      formal: `
+        • 기준 주소(Base Address)로부터 특정 레지스터가 위치한 곳까지의 <strong>바이트 단위 상대 변위(Relative Byte Displacement)</strong>입니다.<br>
+        • STM32의 주변장치 레지스터는 <strong>1개당 32비트(4 Bytes) 크기</strong>를 가지며 메모리에 빈틈없이 연속 배치됩니다. 따라서 각 레지스터의 오프셋은 <code>0x00, 0x04, 0x08, 0x0C, 0x10, 0x14...</code>처럼 <strong>4바이트(<code>0x04</code>) 간격</strong>으로 증가합니다.<br>
+        • 수식: <code>Register Address = Base Address + Offset</code>
+      `,
+      pitfall: '⚠️ 핵심 포인트: 같은 GPIOD 안에 있는 레지스터들은 모두 시작 주소(0x40020C00)가 똑같고, 오직 뒤에 더해주는 오프셋(Offset) 값만 다릅니다!'
+    },
+    ul: {
+      title: '④ 리터럴 접미사 UL (Unsigned Long)',
+      ref: '강의 75 [01:09 ~ 01:32]',
+      summary: '숫자 뒤에 붙여 "이 숫자는 마이너스(-) 부호가 없는 32비트 양수입니다!"라고 컴파일러에게 알려주는 안전 꼬리표입니다.',
+      analogy: `
+        • 집 주소나 우편번호에 <strong>"영하 100번지(-100)" 같은 음수는 존재하지 않죠?</strong><br>
+        • 컴퓨터에게 아무 말 없이 큰 숫자를 주면, 컴퓨터가 실수로 "어? 이거 마이너스 숫자인가?"라고 오해할 수 있습니다. 그래서 숫자 끝에 <code>UL</code>(Unsigned Long: 부호 없는 긴 정수)이라는 안전 도장을 쾅 찍어주는 것입니다.
+      `,
+      formal: `
+        • C 언어에서 접미사가 없는 정수 상수(Literal)는 기본적으로 부호 있는 정수(<code>int</code>)로 취급됩니다.<br>
+        • 32비트 주소 연산이나 비트 시프트 연산 시 최상위 비트(Bit 31, 부호 비트)가 다뤄질 때 예기치 않은 <strong>부호 확장(Sign Extension)이나 오버플로우 버그</strong>를 방지하기 위해, 부호 없는 32비트 이상 정수 타입(<code>unsigned long</code>)임을 명시하는 표준 접미사입니다.
+      `,
+      pitfall: '⚠️ 실무 팁: 임베디드 C에서 레지스터 주소나 비트 마스크 상수를 #define 할 때는 0x40020C00UL, (1UL << 3) 처럼 UL 또는 U를 붙이는 것이 안전합니다.'
+    },
+    cast: {
+      title: '⑤ 포인터(Pointer)와 캐스팅(Type Casting, 형변환)',
+      ref: '강의 75 [04:10 ~ 05:00]',
+      summary: '단순한 덧셈 숫자(0x40020C14)에게 "너는 이제부터 계산용 숫자가 아니라 32비트 메모리 방을 가리키는 주소록(포인터)이야!"라고 신분증을 바꿔 달아주는 작업입니다.',
+      analogy: `
+        • 컴퓨터에게 <code>0x40020C00 + 0x14</code>를 계산하라고 하면 <code>0x40020C14</code>(십진수로 약 10억 7천만)라는 결과를 냅니다.<br>
+        • 하지만 컴퓨터는 이 숫자를 보고 <strong>"아, 그냥 내 통장 잔고나 게임 점수 같은 숫자구나!"</strong>라고 생각하지, 이게 메모리 방 번호(주소)인 줄 전혀 모릅니다.<br>
+        • 그래서 숫자 앞에 <code>(uint32_t *)</code>라는 괄호를 씌워서 <strong>"야! 이건 게임 점수가 아니라 32비트짜리 방을 가리키는 [주소 화살표(포인터)]야!"</strong>라고 <strong>타입(신분증)을 강제로 변환(캐스팅, Casting)</strong>해 주는 것입니다!
+      `,
+      formal: `
+        • <strong>포인터(Pointer)</strong>: 메모리 공간의 주소값을 저장하고 가리키는 데이터 타입입니다.<br>
+        • <strong>명시적 형변환(Explicit Type Casting)</strong>: 수식 앞에 <code>(변환할_타입)</code>을 붙여 데이터 타입을 변환하는 C 연산자입니다.<br>
+        • 정수 상수 <code>0x40020C14UL</code>을 <code>(uint32_t *)</code>로 캐스팅하면, <strong>"해당 주소를 시작점으로 하는 32비트(4바이트) 부호 없는 정수(<code>uint32_t</code>) 크기의 메모리 블록을 가리키는 포인터"</strong>로 타입이 바뀝니다.
+      `,
+      pitfall: '⚠️ 왜 하필 uint32_t * 인가요? STM32의 레지스터 방 하나 크기가 정확히 32비트(uint32_t)이기 때문에, 방 문을 열었을 때 한 번에 32비트(4바이트) 통째로 읽고 쓰라고 크기를 맞춰준 것입니다!'
+    },
+    volatile: {
+      title: '⑥ volatile (컴파일러 최적화 방지 키워드)',
+      ref: '강의 75 [04:46 ~ 05:10]',
+      summary: '컴파일러 비서가 잔꾀를 부려 하드웨어 방에 직접 안 가고 생략해버리는(최적화) 사고를 막는 "무조건 매번 실제 방에 직접 가라!"는 명령서입니다.',
+      analogy: `
+        • C 컴파일러는 일 처리를 엄청 빨리하려는 <strong>꾀돌이 비서</strong>입니다.<br>
+        • 만약 우리가 방에 숫자를 연속으로 쓰거나 계속 확인하면, 비서가 <em>"어? 아까 그 방에 1 넣어뒀으니까 귀찮게 또 안 가보고 제 수첩에 적힌 값으로 대충 처리할게요~"</em>라며 실제 방에 가는 걸 생략해 버립니다!<br>
+        • 하지만 하드웨어 스위치 방은 <strong>우리가 직접 가서 스위치를 누르는 행위 자체가 전기를 내보내는 동작</strong>입니다.<br>
+        • 그래서 <code>volatile</code>(변덕스러운) 딱지를 붙여서 <strong>"비서야! 절대 네 머리로 생략하지 말고 코드에 적힌 대로 무조건 매번 실제 하드웨어 방에 갔다 와!"</strong>라고 강제하는 것입니다.
+      `,
+      formal: `
+        • C 언어의 <strong>타입 한정자(Type Qualifier)</strong>로, 해당 메모리 주소의 값이 컴파일러가 알 수 없는 외부 요인(하드웨어 입출력, 인터럽트, DMA 등)에 의해 언제든 변할 수 있고 쓰기 동작 자체에 하드웨어 부수 효과(Side-effect)가 있음을 명시합니다.<br>
+        • <code>volatile</code>이 선언된 포인터를 역참조하면 컴파일러는 레지스터 캐싱이나 불필요한 코드 제거(Dead-store elimination) 같은 <strong>최적화(Optimization)를 수행하지 않고, 매번 실제 버스 읽기/쓰기 명령어(LDR/STR)를 생성</strong>합니다.
+      `,
+      pitfall: '⚠️ 아래 Part 4 시뮬레이터에서 [volatile 키워드 ON/OFF] 버튼을 눌러보세요! volatile을 빼먹었을 때 파형이 어떻게 먹통이 되는지 바로 볼 수 있습니다.'
+    },
+    deref: {
+      title: '⑦ 역참조 연산자 (Dereference, 맨 바깥쪽 * 별표)',
+      ref: '강의 75 [04:55 ~ 05:22]',
+      summary: '포인터(주소 화살표)가 가리키는 방의 문을 실제로 활짝 열어서, 그 안의 내용물(32비트 스위치 판)을 직접 만질 수 있게 해주는 행동 대장입니다!',
+      analogy: `
+        • <code>(volatile uint32_t *)(0x40020C14UL)</code> 까지만 쓰면, 나는 <strong>D동 20호실 방문 앞에 서서 호실 번호판만 손가락으로 가리키고 있는 상태</strong>입니다. 아직 문을 안 열어서 스위치를 만질 수 없어요!<br>
+        • 여기에 맨 앞에 별표 <code>*</code>를 하나 더 붙여 <code>*( ... )</code>로 감싸면, <strong>"자, 이제 그 방문을 철컥! 열고 들어가서 안의 스위치 판을 손으로 꽉 잡아라!"</strong>가 됩니다. 이제야 비로소 값을 넣거나(<code>=</code>) 바꿀(<code>|=</code>) 수 있습니다!
+      `,
+      formal: `
+        • 포인터 수식 앞에 붙는 단항 연산자 <code>*</code>는 <strong>역참조 연산자(Dereference / Indirection Operator)</strong>입니다.<br>
+        • 포인터(메모리 주소값)를 피연산자로 받아, 그 주소가 가리키는 실제 메모리 공간 자체(<strong>L-value, 대입 연산자의 왼쪽에 올 수 있는 실체</strong>)를 반환합니다.<br>
+        • 따라서 <code>#define GPIOD_ODR (*(volatile uint32_t *)(0x40020C14UL))</code>로 정의하면, 코드에서 <code>GPIOD_ODR</code>라고 쓰는 순간 곧바로 <code>0x40020C14</code> 번지 레지스터 내부 값에 직접 읽기/쓰기가 수행됩니다.
+      `,
+      pitfall: '⚠️ 한 줄 요약: 괄호 안의 *는 "주소로 바꿔라(형변환)", 맨 앞의 *는 "그 주소의 방문을 열어라(역참조)"!'
+    },
+    register: {
+      title: '⑧ 레지스터 (Register — MODER, ODR, RCC_AHB1ENR)',
+      ref: '강의 75 전체',
+      summary: '메모리 주소가 붙어 있어서 CPU가 0과 1을 써넣으면 실제로 MCU의 철제 다리(핀)에 전기를 내보내거나 설정을 바꾸는 하드웨어 스위치 방입니다.',
+      analogy: `
+        • 일반 변수(<code>int a = 3;</code>)는 그냥 공책에 숫자 3을 적어둔 것이라 아무 일도 안 일어납니다.<br>
+        • 반면 <strong>레지스터(Register)</strong> 방 안에 있는 32개의 스위치는 <strong>실제 MCU 칩의 금속 다리(핀)와 구리선으로 직결된 마법의 제어반</strong>입니다!<br>
+        &nbsp;&nbsp;- <code>RCC_AHB1ENR</code>: 건물 전체 두꺼비집(전원 클럭)을 올리는 방<br>
+        &nbsp;&nbsp;- <code>GPIOD_MODER</code>: 핀을 입력으로 쓸지 출력으로 쓸지 정하는 방<br>
+        &nbsp;&nbsp;- <code>GPIOD_ODR</code>: 핀에 실제로 <strong>3.3V(1)</strong>를 내보낼지 <strong>0V(0)</strong>를 내보낼지 누르는 스위치 방!
+      `,
+      formal: `
+        • MCU 내부 주변장치(Peripheral) 회로와 시스템 버스를 연결하는 <strong>32비트 하드웨어 제어/상태 저장소(Flip-Flop Array)</strong>입니다.<br>
+        • 각 비트가 내부 멀티플렉서(MUX), 클럭 게이팅 스위치, Push-Pull 출력단의 P-MOS/N-MOS 트랜지스터 게이트와 물리적으로 연결되어 있어, 소프트웨어의 비트 조작이 즉각 하드웨어의 전기적 상태 변화로 변환됩니다.
+      `,
+      pitfall: '⚠️ 필수 신호 체인: Base + Offset = Address ➔ Register 접근 ➔ Bit 조작 ➔ Peripheral 하드웨어 동작!'
+    }
+  };
+
+  const tokenBtns = document.querySelectorAll('.code-token');
+  function renderTerm(key) {
+    const data = TERMS[key];
+    if (!data) return;
+    tokenBtns.forEach(b => b.classList.toggle('active', b.dataset.term === key));
+    document.getElementById('term-title').textContent = data.title;
+    document.getElementById('term-Lecture-ref').textContent = data.ref;
+    document.getElementById('term-summary').textContent = data.summary;
+    document.getElementById('term-analogy').innerHTML = data.analogy;
+    document.getElementById('term-formal').innerHTML = data.formal;
+    document.getElementById('term-pitfall').innerHTML = data.pitfall;
+  }
+  tokenBtns.forEach(btn => {
+    btn.addEventListener('click', () => renderTerm(btn.dataset.term));
+  });
+  renderTerm('offset');
+
+  /* =========================================================================
+     PART 2: MEMORY BUILDING & STEP-BY-STEP BUILDER
+     ========================================================================= */
+  const GPIOD_REGS = [
+    { name: 'MODER',   offset: '0x00UL', addr: '0x40020C00', desc: '핀 모드 설정방 (00:입력, 01:출력, 10:대체기능, 11:아날로그)' },
+    { name: 'OTYPER',  offset: '0x04UL', addr: '0x40020C04', desc: '출력 형태 설정방 (0: Push-Pull, 1: Open-Drain)' },
+    { name: 'OSPEEDR', offset: '0x08UL', addr: '0x40020C08', desc: '출력 속도 설정방 (Low / Medium / High / Very High)' },
+    { name: 'PUPDR',   offset: '0x0CUL', addr: '0x40020C0C', desc: '내부 풀업/풀다운 저항 설정방' },
+    { name: 'IDR',     offset: '0x10UL', addr: '0x40020C10', desc: '입력 데이터 확인방 (외부 전압이 High면 1, Low면 0 읽힘)' },
+    { name: 'ODR',     offset: '0x14UL', addr: '0x40020C14', desc: '★ 출력 전압 스위치방 (1 쓰면 3.3V 출력, 0 쓰면 0V 출력!)' }
+  ];
+
+  let selectedRegIdx = 5;
+  let currentStep = 2;
+  const memRowsContainer = document.getElementById('mem-rows-container');
+
+  function updateBuilderUI() {
+    const reg = GPIOD_REGS[selectedRegIdx];
+
+    memRowsContainer.innerHTML = '';
+    GPIOD_REGS.forEach((r, idx) => {
+      const row = document.createElement('div');
+      row.className = 'mem-row' + (idx === selectedRegIdx ? ' selected' : '');
+      row.innerHTML = `
+        <span class="mem-offset">+ ${r.offset}</span>
+        <span class="mem-addr">${r.addr}</span>
+        <span class="mem-name">GPIOD_${r.name}</span>
+        <span class="mem-desc-col" style="color:#cbd5e1;font-size:0.9rem;">${r.desc}</span>
+      `;
+      row.addEventListener('click', () => {
+        selectedRegIdx = idx;
+        updateBuilderUI();
+      });
+      memRowsContainer.appendChild(row);
+    });
+
+    document.getElementById('step1-code').textContent = `#define GPIOD_BASE 0x40020C00UL`;
+    document.getElementById('step2-code').textContent = `(0x40020C00UL + ${reg.offset})  // 결과 주소: ${reg.addr}UL`;
+    document.getElementById('step3-code').textContent = `(volatile uint32_t *)(0x40020C00UL + ${reg.offset})`;
+    document.getElementById('step4-code').textContent = `#define GPIOD_${reg.name} (*(volatile uint32_t *)(0x40020C00UL + ${reg.offset}))`;
+    document.getElementById('step5-code').textContent = `GPIOD->${reg.name}  // 구조체가 자동으로 +${reg.offset} 위치를 찾아감!`;
+
+    document.getElementById('calc-formula-display').innerHTML =
+      `<span style="color:#38bdf8">0x40020C00UL (시작주소)</span> + <span style="color:#fbbf24">${reg.offset} (오프셋)</span> = <span style="color:#34d399">${reg.addr}UL (GPIOD_${reg.name} 실제 주소)</span>`;
+    document.getElementById('calc-reg-desc').textContent =
+      `현재 선택된 방: GPIOD_${reg.name} — ${reg.desc}`;
+
+    const stepExplanations = {
+      1: `
+        <strong style="color:var(--cyan);font-size:1.08rem;">[1단계] 시작 주소(Base Address) 정의하기</strong>
+        <p style="margin:8px 0 0;">
+          • <strong>비유</strong>: 먼저 찾아갈 건물인 <strong>GPIOD 동 건물의 정문 입구 주소(<code>0x40020C00UL</code>)</strong>를 <code>GPIOD_BASE</code>라는 이름으로 등록합니다.<br>
+          • <strong>정석</strong>: 데이터시트(RM0410) 메모리 맵에서 확인한 주변장치 시작 물리 주소를 전처리기 매크로(<code>#define</code>) 상수로 정의합니다.
+        </p>
+      `,
+      2: `
+        <strong style="color:var(--amber);font-size:1.08rem;">[2단계] 강사의 핵심 대목: "시작주소에다가 오프셋을 더해주면~"</strong>
+        <p style="margin:8px 0 0;">
+          • <strong>비유</strong>: GPIOD 건물 입구(<code>0x40020C00UL</code>)에서 <strong><code>${reg.name}</code> 방이 떨어진 거리(오프셋 <code>${reg.offset}</code>)를 더합니다.</strong> 그러면 <code>${reg.addr}UL</code>이라는 정확한 방 번호가 나옵니다!<br>
+          • <strong>정석</strong>: <code>Base Address + Byte Offset</code> 산술 덧셈을 통해 목적지 레지스터의 <strong>유효 물리 주소(Effective Physical Address)</strong>를 계산합니다. 단, 이 상태는 아직 C 언어 입장에서 <strong>'단순 정수 숫자'</strong>일 뿐입니다.
+        </p>
+      `,
+      3: `
+        <strong style="color:var(--emerald);font-size:1.08rem;">[3단계] 포인터 캐스팅 <code>(volatile uint32_t *)</code> 붙이기</strong>
+        <p style="margin:8px 0 0;">
+          • <strong>비유</strong>: 2단계에서 구한 숫자 <code>${reg.addr}UL</code>에게 <strong>"너는 단순 숫자가 아니라 32비트짜리 방을 가리키는 주소 화살표(포인터)야! 그리고 컴파일러 비서는 절대 꾀부리지 마(volatile)!"</strong>라고 신분증을 바꿔 달아줍니다.<br>
+          • <strong>정석</strong>: 정수형 수식을 <code>volatile uint32_t *</code> 타입으로 <strong>명시적 형변환(Type Casting)</strong>하여, 컴파일러가 이를 하드웨어 레지스터의 메모리 주소로 취급하도록 만듭니다.
+        </p>
+      `,
+      4: `
+        <strong style="color:var(--rose);font-size:1.08rem;">[4단계] 역참조(<code>*</code>)로 방문을 활짝 열고 매크로 완성!</strong>
+        <p style="margin:8px 0 0;">
+          • <strong>비유</strong>: 3단계 화살표 맨 앞에 별표(<code>*</code>)를 하나 더 붙여 <code>*( ... )</code>로 감싸면, <strong>실제로 <code>${reg.addr}</code> 방문을 열고 안의 32칸 스위치 판을 손에 쥔 상태</strong>가 됩니다!<br>
+          • <strong>정석</strong>: 포인터 역참조 연산자(<code>*</code>)를 적용하여 <code>GPIOD_${reg.name}</code> 매크로 자체가 해당 물리 주소의 32비트 메모리 공간(L-value)을 직접 대표하게 합니다.
+        </p>
+      `,
+      5: `
+        <strong style="color:var(--purple);font-size:1.08rem;">[5단계] 왜 실무에서는 <code>GPIOD-&gt;${reg.name}</code> (구조체)로 쓸까요? (75강 07:47~)</strong>
+        <p style="margin:8px 0 0;">
+          • <strong>비유</strong>: 방이 수백 개인데 매번 <code>+ 0x00</code>, <code>+ 0x04</code>, <code>+ 0x14</code>를 손으로 더하다가 오타가 나면 큰일 나겠죠? 그래서 <strong>4바이트짜리 방 6개가 줄지어 있는 투명 설계도(<code>struct GPIO_TypeDef</code>)</strong>를 만들어 건물 입구(<code>0x40020C00</code>) 위에 딱 포개어 놓습니다! 그러면 <code>GPIOD-&gt;${reg.name}</code>이라고 부르기만 해도 컴퓨터가 알아서 <code>+${reg.offset}</code> 떨어진 <code>${reg.addr}</code> 방을 찾아갑니다!<br>
+          • <strong>정석</strong>: C 구조체 멤버들이 선언된 순서대로 4바이트(<code>uint32_t</code>) 간격으로 연속 할당된다는 메모리 정렬 특성을 이용한 <strong>CMSIS 표준 매핑 기법</strong>입니다. 전동킥보드 실제 코드(<code>GPIO.c</code>, <code>clock.c</code>)가 모두 이 방식을 씁니다.
+        </p>
+      `
+    };
+    document.getElementById('builder-explanation').innerHTML = stepExplanations[currentStep];
+  }
+
+  document.querySelectorAll('#builder-steps .step-choice-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentStep = Number(btn.dataset.step);
+      document.querySelectorAll('#builder-steps .step-choice-btn').forEach(b => b.classList.toggle('active', b === btn));
+      updateBuilderUI();
+    });
+  });
+  updateBuilderUI();
+
+  /* =========================================================================
+     PART 3: 1-BIT vs 2-BIT MAPPER & BIT SHIFT PLAYGROUND
+     ========================================================================= */
+  let odrBits = [0, 1, 0, 1, 0, 0, 1, 0];
+  let targetBit = 3;
+  const bitBoxesEl = document.getElementById('odr-bit-boxes');
+  const bitExpEl = document.getElementById('bit-op-explanation');
+  const pinMapperResult = document.getElementById('pin-mapper-result');
+
+  function updatePinMapper(pinNum) {
+    targetBit = pinNum;
+    document.querySelectorAll('#pin-mapper-grid .pin-pick-btn').forEach(btn => {
+      btn.classList.toggle('active', Number(btn.dataset.pin) === pinNum);
+    });
+    const moderLowBit = pinNum * 2;
+    const moderHighBit = pinNum * 2 + 1;
+    pinMapperResult.innerHTML = `
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;">
+        <div style="background:#081120;padding:14px;border-radius:10px;border:1px solid var(--amber);">
+          <strong style="color:var(--amber);">① <code>GPIOD_MODER</code> (핀당 2비트씩 차지)</strong><br>
+          • <strong>PD${pinNum}</strong>의 자리: <strong>${moderHighBit}번·${moderLowBit}번 비트</strong> (<code>2 × ${pinNum} = ${moderLowBit}</code>)<br>
+          • 출력 모드(<code>01</code>) 설정 코드: <code>GPIOD_MODER |= (1 &lt;&lt; ${moderLowBit});</code>
+        </div>
+        <div style="background:#081120;padding:14px;border-radius:10px;border:1px solid var(--emerald);">
+          <strong style="color:var(--emerald);">② <code>GPIOD_ODR</code> (핀당 1비트씩 차지)</strong><br>
+          • <strong>PD${pinNum}</strong>의 자리: <strong>${pinNum}번 비트</strong> (핀 번호와 똑같음!)<br>
+          • 3.3V 출력(<code>1</code>) 설정 코드: <code>GPIOD_ODR |= (1 &lt;&lt; ${pinNum});</code>
+        </div>
+      </div>
+    `;
+    renderBitBoxes(`목표 핀을 PD${pinNum}(ODR ${pinNum}번 비트 / MODER ${moderLowBit}번 비트)으로 선택했습니다.`);
+  }
+
+  function renderBitBoxes(lastActionText) {
+    bitBoxesEl.innerHTML = '';
+    for (let b = 7; b >= 0; b--) {
+      const cell = document.createElement('div');
+      cell.className = 'bit-cell' + (odrBits[b] ? ' on' : '') + (b === targetBit ? ' target' : '');
+      cell.innerHTML = `
+        <small>PD${b} (Bit ${b})</small>
+        <strong>${odrBits[b]}</strong>
+        <small style="color:${odrBits[b] ? '#6ee7b7' : '#94a3b8'}">${odrBits[b] ? '⚡ 3.3V ON' : '⚫ 0V OFF'}</small>
+      `;
+      cell.addEventListener('click', () => {
+        odrBits[b] = odrBits[b] ? 0 : 1;
+        renderBitBoxes(`스위치 직접 터치: PD${b}(${b}번 비트)를 ${odrBits[b]}(${odrBits[b] ? '3.3V' : '0V'})로 바꿨습니다.`);
+      });
+      bitBoxesEl.appendChild(cell);
+    }
+
+    const maskBin = Array.from({length: 8}, (_, i) => (7 - i) === targetBit ? '1' : '0').join('');
+    const invMaskBin = Array.from({length: 8}, (_, i) => (7 - i) === targetBit ? '0' : '1').join('');
+    const curBin = Array.from({length: 8}, (_, i) => odrBits[7 - i]).join('');
+    const hexVal = '0x' + parseInt(curBin, 2).toString(16).toUpperCase().padStart(2, '0');
+
+    bitExpEl.innerHTML = `
+      <div style="color:#38bdf8;font-weight:800;margin-bottom:6px;">▶ ${lastActionText}</div>
+      <div>• <code>(1 &lt;&lt; ${targetBit})</code> 시프트 마스크: <span style="color:#fbbf24">${maskBin}</span> &nbsp;|&nbsp; <code>~(1 &lt;&lt; ${targetBit})</code> 반전 마스크: <span style="color:#c084fc">${invMaskBin}</span></div>
+      <div>• 현재 <code>GPIOD_ODR</code> 하위 8비트 결과: <span style="color:#34d399;font-weight:900;">${curBin} (${hexVal})</span></div>
+    `;
+  }
+
+  document.querySelectorAll('#pin-mapper-grid .pin-pick-btn').forEach(btn => {
+    btn.addEventListener('click', () => updatePinMapper(Number(btn.dataset.pin)));
+  });
+
+  document.getElementById('btn-bit-set').addEventListener('click', () => {
+    odrBits[targetBit] = 1;
+    renderBitBoxes(`[켜기 성공] GPIOD_ODR |= (1 << ${targetBit}); ➔ 다른 핀들은 그대로 두고 PD${targetBit} 스위치만 1(3.3V)로 올렸습니다!`);
+  });
+
+  document.getElementById('btn-bit-clear').addEventListener('click', () => {
+    odrBits[targetBit] = 0;
+    renderBitBoxes(`[끄기 성공] GPIOD_ODR &= ~(1 << ${targetBit}); ➔ 다른 핀들은 그대로 두고 PD${targetBit} 스위치만 0(0V)으로 내렸습니다!`);
+  });
+
+  document.getElementById('btn-bit-overwrite').addEventListener('click', () => {
+    odrBits = [0, 0, 0, 0, 0, 0, 0, 0];
+    odrBits[targetBit] = 1;
+    renderBitBoxes(`⚠️ [단순 대입 사고!] GPIOD_ODR = (1 << ${targetBit}); ➔ |= 대신 = 를 쓰면 원래 켜져 있던 다른 핀(PD1, PD6)이 전부 0으로 꺼져버립니다!`);
+  });
+
+  document.getElementById('btn-bit-preset').addEventListener('click', () => {
+    odrBits = [0, 1, 0, 1, 0, 0, 1, 0];
+    renderBitBoxes(`초기 상태 복구 완료: PD1, PD3, PD6이 켜진 상태입니다.`);
+  });
+
+  updatePinMapper(3);
+
+  /* =========================================================================
+     PART 4: GIANT SINGLE-COLUMN CIRCUIT & WAVEFORM SIMULATOR
+     ========================================================================= */
+  const slider = document.getElementById('sim-slider');
+  const timeLabel = document.getElementById('sim-time-label');
+  const playBtn = document.getElementById('sim-play-btn');
+  const toggleVolatileBtn = document.getElementById('toggle-volatile');
+  const canvas = document.getElementById('waveform-canvas');
+  const ctx = canvas.getContext('2d');
+
+  let simTime = 70;
+  let isPlaying = false;
+  let animId = null;
+  let loadMode = 'ah'; // 'ah' (Active-High), 'al' (Active-Low), 'bldc' (Kickboard BLDC)
+  let volatileEnabled = true;
+
+  function getSimStateAt(t, useVolatile) {
+    const rcc = t >= 20 ? 1 : 0;
+    const moderOut = t >= 40 ? 1 : 0;
+    let odr = 0;
+    if (t >= 60 && t < 80) {
+      odr = useVolatile ? 1 : 0;
+    }
+    let pinVolt = null;
+    if (rcc && moderOut) {
+      pinVolt = odr ? 3.3 : 0.0;
+    }
+    return { rcc, moderOut, odr, pinVolt };
+  }
+
+  function updateSimulator() {
+    timeLabel.textContent = `t = ${simTime.toFixed(1)} ms`;
+    const st = getSimStateAt(simTime, volatileEnabled);
+
+    const phaseIdx = Math.min(4, Math.floor(simTime / 20));
+    document.querySelectorAll('#phase-jump-group .action-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', i === phaseIdx);
+    });
+    document.querySelectorAll('#sim-summary-table tbody tr').forEach((row, i) => {
+      row.classList.toggle('active-row', i === phaseIdx);
+    });
+
+    // Update SVG Register Boxes
+    document.getElementById('svg-rcc-box').setAttribute('opacity', st.rcc ? '1' : '0.32');
+    document.getElementById('svg-rcc-bit').textContent = st.rcc ? 'GPIODEN (Bit 3) = 1 (클럭 ON)' : 'GPIODEN (Bit 3) = 0 (클럭 OFF)';
+    document.getElementById('svg-rcc-bit').setAttribute('fill', st.rcc ? '#34d399' : '#94a3b8');
+
+    document.getElementById('svg-moder-box').setAttribute('opacity', st.moderOut ? '1' : '0.32');
+    document.getElementById('svg-moder-bit').textContent = st.moderOut ? 'MODER3[7:6] = 01 (출력 모드)' : 'MODER3[7:6] = 00 (입력 모드)';
+
+    document.getElementById('svg-odr-box').setAttribute('opacity', (st.rcc && st.moderOut) ? '1' : '0.32');
+    document.getElementById('svg-odr-bit').textContent = `ODR[3] = ${st.odr} (${st.odr ? 'HIGH 3.3V 명령' : 'LOW 0V 명령'})`;
+    document.getElementById('svg-odr-bit').setAttribute('fill', st.odr ? '#fb7185' : '#38bdf8');
+
+    const pmosOn = st.rcc && st.moderOut && st.odr === 1;
+    const nmosOn = st.rcc && st.moderOut && st.odr === 0;
+
+    document.getElementById('svg-pmos').setAttribute('opacity', pmosOn ? '1' : '0.22');
+    document.getElementById('svg-pmos-state').textContent = pmosOn ? 'ON (3.3V 도통)' : 'OFF (차단됨)';
+
+    document.getElementById('svg-nmos').setAttribute('opacity', nmosOn ? '1' : '0.22');
+    document.getElementById('svg-nmos-state').textContent = nmosOn ? 'ON (0V GND 도통)' : 'OFF (차단됨)';
+
+    document.getElementById('svg-pin-volt').textContent = st.pinVolt === null ? 'High-Z' : `${st.pinVolt.toFixed(1)}V`;
+
+    // External Load Visibility
+    document.getElementById('svg-ext-ah').style.display = loadMode === 'ah' ? 'block' : 'none';
+    document.getElementById('svg-ext-al').style.display = loadMode === 'al' ? 'block' : 'none';
+    document.getElementById('svg-ext-bldc').style.display = loadMode === 'bldc' ? 'block' : 'none';
+
+    const modeBadges = {
+      ah: '모드 A: 75강 기본형 (Active-High: 3.3V일 때 켜짐)',
+      al: '모드 B: 72·76강 보드형 (Active-Low: 0V일 때 Sink 켜짐)',
+      bldc: '모드 C: 전동킥보드 실전 (게이트 드라이버 ➔ 인버터 MOSFET ➔ BLDC 모터)'
+    };
+    document.getElementById('svg-mode-badge').textContent = modeBadges[loadMode];
+
+    // Current Loops
+    const sourceFlow = loadMode === 'ah' && pmosOn;
+    const sinkFlow = loadMode === 'al' && nmosOn;
+    const bldcFlow = loadMode === 'bldc' && pmosOn;
+
+    document.getElementById('loop-source').classList.toggle('active', sourceFlow);
+    document.getElementById('loop-sink').classList.toggle('active', sinkFlow);
+    document.getElementById('loop-bldc-gate').classList.toggle('active', bldcFlow);
+    document.getElementById('loop-bldc-power').classList.toggle('active', bldcFlow);
+
+    // Visual Glows
+    const ahLed = document.getElementById('svg-ah-led');
+    ahLed.setAttribute('fill', sourceFlow ? '#fb7185' : '#334155');
+    ahLed.style.filter = sourceFlow ? 'drop-shadow(0 0 18px #fb7185)' : 'none';
+
+    const alLed = document.getElementById('svg-al-led');
+    alLed.setAttribute('fill', sinkFlow ? '#38bdf8' : '#334155');
+    alLed.style.filter = sinkFlow ? 'drop-shadow(0 0 18px #38bdf8)' : 'none';
+
+    if (loadMode === 'bldc') {
+      document.getElementById('svg-fet-box').setAttribute('opacity', bldcFlow ? '1' : '0.3');
+      document.getElementById('svg-fet-state').textContent = bldcFlow ? 'ON (도통!)' : 'OFF (차단)';
+      document.getElementById('svg-gd-out').textContent = bldcFlow ? 'HO 출력: 12V 증폭!' : 'HO 출력: 0V 대기';
+      document.getElementById('svg-motor-circle').style.filter = bldcFlow ? 'drop-shadow(0 0 16px #34d399)' : 'none';
+    }
+
+    // Status Card Text
+    const statusCard = document.getElementById('sim-status-card');
+    if (!st.rcc) {
+      statusCard.innerHTML = `
+        <strong style="color:#94a3b8;font-size:1.1rem;">[구간 ① 초기 리셋: 클럭 OFF]</strong><br>
+        • <code>RCC_AHB1ENR</code>(<code>0x40023830</code>)의 3번 비트가 <code>0</code>이므로 GPIOD 건물에 클럭(전기)이 공급되지 않습니다.<br>
+        • 상단 P-MOS와 하단 N-MOS가 모두 꺼진 <strong>High-Z(고임피던스 부동 상태)</strong>로 외부 회로에 전류가 흐르지 않습니다.
+      `;
+    } else if (!st.moderOut) {
+      statusCard.innerHTML = `
+        <strong style="color:#34d399;font-size:1.1rem;">[구간 ② RCC 클럭 활성화 완료: <code>0x40023800 + 0x30 = 0x40023830</code>]</strong><br>
+        • <code>RCC_AHB1ENR |= (1 &lt;&lt; 3);</code> 실행으로 GPIOD 레지스터들이 깨어났습니다.<br>
+        • 하지만 아직 <code>GPIOD_MODER</code>(<code>0x40020C00</code>)가 입력 모드(<code>00</code>)이므로 출력단 P-MOS/N-MOS 스위치는 연결되지 않았습니다.
+      `;
+    } else if (simTime >= 60 && simTime < 80 && !volatileEnabled) {
+      statusCard.innerHTML = `
+        <strong style="color:#fb7185;font-size:1.1rem;">⚠️ [경고: <code>volatile</code> 키워드 누락으로 컴파일러 최적화 버그 발생!]</strong><br>
+        • 코드에서 <code>ODR |= (1 &lt;&lt; 3);</code>(60ms) 뒤에 <code>ODR &amp;= ~(1 &lt;&lt; 3);</code>(80ms)이 이어지자, <code>volatile</code>이 없으면 컴파일러 비서가 <em>"어차피 곧 0으로 덮어쓸 건데 왜 1을 쓰지? 귀찮으니 생략하자!"</em>라며 <strong>3.3V 출력 명령을 통째로 삭제</strong>해 버렸습니다!
+      `;
+    } else if (pmosOn) {
+      if (loadMode === 'ah') {
+        statusCard.innerHTML = `
+          <strong style="color:#fb7185;font-size:1.1rem;">[구간 ④ HIGH 출력: <code>*(volatile uint32_t *)(0x40020C00 + 0x14) |= (1 &lt;&lt; 3)</code>]</strong><br>
+          • <strong>스위치 상태</strong>: 상단 P-MOS <strong>ON</strong>, 하단 N-MOS <strong>OFF</strong> ➔ PD3 핀 전압 V<sub>PD3</sub> = 3.3V<br>
+          • <strong>바이어스 판별 (상대 전위차 기준)</strong>: LED 애노드 전위(V<sub>A</sub> = 3.3V) &gt; 캐소드 전위(V<sub>K</sub> = 0V) 이므로 <strong>순방향 바이어스(Forward Bias) 도통!</strong><br>
+          • <strong>전류 루프</strong>: MCU VDD(+3.3V) ➔ 상단 P-MOS ➔ PD3 핀 ➔ 저항(330Ω) ➔ LED ➔ 외부 GND(0V)
+        `;
+      } else if (loadMode === 'al') {
+        statusCard.innerHTML = `
+          <strong style="color:#94a3b8;font-size:1.1rem;">[구간 ④ HIGH 출력 (모드 B: Active-Low 회로 연결 시)]</strong><br>
+          • 상단 P-MOS가 켜져서 PD3 핀 전압 V<sub>PD3</sub> = 3.3V가 되었습니다.<br>
+          • <strong>바이어스 판별 (상대 전위차 기준)</strong>: 외부 전원 쪽 애노드(V<sub>A</sub> = 3.3V)와 PD3 쪽 캐소드(V<sub>K</sub> = 3.3V)의 <strong>전위차가 3.3V - 3.3V = 0V</strong>이므로 전류가 흐르지 않아 <strong>LED가 꺼집니다(OFF)!</strong>
+        `;
+      } else {
+        statusCard.innerHTML = `
+          <strong style="color:#34d399;font-size:1.1rem;">[구간 ④ HIGH 출력 (모드 C: 전동킥보드 게이트 드라이버 &amp; BLDC 구동!)]</strong><br>
+          • <strong>신호 전달</strong>: MCU 상단 P-MOS가 켜져 3.3V 신호가 게이트 드라이버(IR2101 / UCC27211) 입력으로 들어갑니다.<br>
+          • <strong>바이어스 판별</strong>: 게이트 드라이버가 이를 12V~15V로 증폭하여 인버터 MOSFET의 게이트-소스 상대 전위차(V<sub>GS</sub> &gt; V<sub>th</sub>)를 문턱전압 이상으로 높여 <strong>인버터 MOSFET 도통 ➔ 배터리(+36V) 전류가 BLDC 모터로 흐릅니다!</strong>
+        `;
+      }
+    } else {
+      if (loadMode === 'al') {
+        statusCard.innerHTML = `
+          <strong style="color:#38bdf8;font-size:1.1rem;">[구간 ③/⑤ LOW 출력 (모드 B: Active-Low 싱크 구동!)]</strong><br>
+          • <strong>스위치 상태</strong>: 상단 P-MOS <strong>OFF</strong>, 하단 N-MOS <strong>ON</strong> ➔ PD3 핀이 MCU GND(0V)와 연결됨 (V<sub>PD3</sub> = 0V)<br>
+          • <strong>바이어스 판별 (상대 전위차 기준)</strong>: 외부 +3.3V에 연결된 애노드(V<sub>A</sub> = 3.3V) &gt; PD3 쪽 캐소드(V<sub>K</sub> = 0V) 이므로 <strong>순방향 바이어스 도통!</strong><br>
+          • <strong>전류 루프</strong>: 외부 +3.3V ➔ LED ➔ 330Ω ➔ PD3 핀 ➔ 하단 N-MOS ➔ MCU 내부 GND(0V)
+        `;
+      } else {
+        statusCard.innerHTML = `
+          <strong style="color:#38bdf8;font-size:1.1rem;">[구간 ③/⑤ LOW (0V) 출력: <code>GPIOD_ODR</code> 3번 비트 = 0]</strong><br>
+          • <strong>스위치 상태</strong>: 상단 P-MOS <strong>OFF</strong>, 하단 N-MOS <strong>ON</strong> ➔ PD3 핀이 MCU GND(0V)와 연결됨 (V<sub>PD3</sub> = 0V)<br>
+          • <strong>바이어스 판별</strong>: 양단 전위차가 0V(또는 V<sub>GS</sub> = 0V &lt; V<sub>th</sub>)이므로 <strong>외부 부하 전류 차단 (OFF)</strong>.
+        `;
+      }
+    }
+
+    drawWaveforms();
+  }
+
+  function drawWaveforms() {
+    const W = canvas.width;
+    const H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+
+    const padL = 195, padR = 35, padT = 24, padB = 34;
+    const plotW = W - padL - padR;
+
+    const stages = [
+      { title: '① 클럭 & 모드', sub: 'RCC(+0x30) / MODER(+0x00)', top: 24,  height: 92, color: '#34d399' },
+      { title: '② ODR[3] 비트', sub: '0x40020C00 + 0x14',       top: 152, height: 92, color: '#fbbf24' },
+      { title: '③ PD3 핀 전압', sub: '물리 출력 (0V ↔ 3.3V)',   top: 280, height: 96, color: '#fb7185' }
+    ];
+
+    // Grid lines
+    ctx.save();
+    for (let t = 0; t <= 100; t += 20) {
+      const x = padL + (t / 100) * plotW;
+      ctx.strokeStyle = t === 0 || t === 100 ? '#475569' : '#1e293b';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash(t === 0 || t === 100 ? [] : [6, 5]);
+      ctx.beginPath();
+      ctx.moveTo(x, 14);
+      ctx.lineTo(x, H - padB);
+      ctx.stroke();
+
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = 'bold 14px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${t} ms`, x, H - 10);
+    }
+    ctx.restore();
+
+    stages.forEach(st => {
+      ctx.fillStyle = '#091326';
+      ctx.fillRect(padL, st.top, plotW, st.height);
+      ctx.strokeStyle = '#263c63';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(padL, st.top, plotW, st.height);
+
+      ctx.fillStyle = st.color;
+      ctx.font = 'bold 15px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(st.title, 14, st.top + 38);
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '13px monospace';
+      ctx.fillText(st.sub, 14, st.top + 62);
+    });
+
+    const tToX = t => padL + (t / 100) * plotW;
+
+    // Stage 1: RCC & MODER
+    ctx.lineWidth = 3.5;
+    ctx.strokeStyle = '#34d399';
+    ctx.beginPath();
+    ctx.moveTo(tToX(0), stages[0].top + 74);
+    ctx.lineTo(tToX(20), stages[0].top + 74);
+    ctx.lineTo(tToX(20), stages[0].top + 22);
+    ctx.lineTo(tToX(100), stages[0].top + 22);
+    ctx.stroke();
+    ctx.fillStyle = '#34d399';
+    ctx.font = 'bold 13px monospace';
+    ctx.fillText('RCC 클럭 ON (GPIODEN=1)', tToX(21.5), stages[0].top + 18);
+
+    ctx.strokeStyle = '#38bdf8';
+    ctx.beginPath();
+    ctx.moveTo(tToX(0), stages[0].top + 80);
+    ctx.lineTo(tToX(40), stages[0].top + 80);
+    ctx.lineTo(tToX(40), stages[0].top + 44);
+    ctx.lineTo(tToX(100), stages[0].top + 44);
+    ctx.stroke();
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillText('MODER=01 (출력 준비 완료)', tToX(41.5), stages[0].top + 40);
+
+    // Stage 2: ODR[3]
+    const yOdrLow = stages[1].top + 74;
+    const yOdrHigh = stages[1].top + 22;
+
+    ctx.save();
+    ctx.strokeStyle = 'rgba(148, 163, 184, 0.5)';
+    ctx.setLineDash([7, 5]);
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(tToX(0), yOdrLow);
+    ctx.lineTo(tToX(60), yOdrLow);
+    ctx.lineTo(tToX(60), yOdrHigh);
+    ctx.lineTo(tToX(80), yOdrHigh);
+    ctx.lineTo(tToX(80), yOdrLow);
+    ctx.lineTo(tToX(100), yOdrLow);
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.strokeStyle = '#fbbf24';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(tToX(0), yOdrLow);
+    if (volatileEnabled) {
+      ctx.lineTo(tToX(60), yOdrLow);
+      ctx.lineTo(tToX(60), yOdrHigh);
+      ctx.lineTo(tToX(80), yOdrHigh);
+      ctx.lineTo(tToX(80), yOdrLow);
+    }
+    ctx.lineTo(tToX(100), yOdrLow);
+    ctx.stroke();
+
+    // Stage 3: PD3 Pin Voltage
+    const yVHighZ = stages[2].top + 48;
+    const yVLow = stages[2].top + 78;
+    const yVHigh = stages[2].top + 18;
+
+    ctx.save();
+    ctx.strokeStyle = '#64748b';
+    ctx.setLineDash([6, 5]);
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(tToX(0), yVHighZ);
+    ctx.lineTo(tToX(40), yVHighZ);
+    ctx.stroke();
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = 'bold 13px monospace';
+    ctx.fillText('High-Z (부동 상태)', tToX(8), yVHighZ - 8);
+    ctx.restore();
+
+    ctx.strokeStyle = '#fb7185';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(tToX(40), yVHighZ);
+    ctx.lineTo(tToX(40), yVLow);
+    if (volatileEnabled) {
+      ctx.lineTo(tToX(60), yVLow);
+      ctx.lineTo(tToX(60), yVHigh);
+      ctx.lineTo(tToX(80), yVHigh);
+      ctx.lineTo(tToX(80), yVLow);
+    }
+    ctx.lineTo(tToX(100), yVLow);
+    ctx.stroke();
+
+    ctx.fillStyle = '#fb7185';
+    ctx.font = 'bold 13px monospace';
+    ctx.fillText('3.3V', padL - 44, yVHigh + 5);
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillText('0.0V', padL - 44, yVLow + 5);
+
+    // Cursor
+    const curX = tToX(simTime);
+    const curState = getSimStateAt(simTime, volatileEnabled);
+
+    ctx.save();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(curX, 14);
+    ctx.lineTo(curX, H - padB);
+    ctx.stroke();
+
+    const dotY1 = curState.moderOut ? stages[0].top + 44 : (curState.rcc ? stages[0].top + 22 : stages[0].top + 74);
+    const dotY2 = curState.odr ? yOdrHigh : yOdrLow;
+    const dotY3 = curState.pinVolt === null ? yVHighZ : (curState.pinVolt > 1 ? yVHigh : yVLow);
+
+    [
+      { y: dotY1, c: '#34d399' },
+      { y: dotY2, c: '#fbbf24' },
+      { y: dotY3, c: '#fb7185' }
+    ].forEach(d => {
+      ctx.fillStyle = d.c;
+      ctx.beginPath();
+      ctx.arc(curX, d.y, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2.2;
+      ctx.stroke();
+    });
+    ctx.restore();
+  }
+
+  slider.addEventListener('input', () => {
+    simTime = Number(slider.value);
+    updateSimulator();
+  });
+
+  let isDraggingCanvas = false;
+  function updateTimeFromCanvasEvent(e) {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const x = (e.clientX - rect.left) * scaleX;
+    const padL = 195, padR = 35;
+    const plotW = canvas.width - padL - padR;
+    const ratio = Math.max(0, Math.min(1, (x - padL) / plotW));
+    simTime = Math.round(ratio * 200) / 2;
+    slider.value = String(simTime);
+    updateSimulator();
+  }
+
+  canvas.addEventListener('pointerdown', (e) => {
+    isDraggingCanvas = true;
+    canvas.setPointerCapture(e.pointerId);
+    updateTimeFromCanvasEvent(e);
+  });
+  canvas.addEventListener('pointermove', (e) => {
+    if (isDraggingCanvas) updateTimeFromCanvasEvent(e);
+  });
+  canvas.addEventListener('pointerup', () => { isDraggingCanvas = false; });
+
+  document.querySelectorAll('#phase-jump-group .action-btn, #sim-summary-table tbody tr').forEach(el => {
+    el.addEventListener('click', () => {
+      simTime = Number(el.dataset.t);
+      slider.value = String(simTime);
+      updateSimulator();
+    });
+  });
+
+  // 3 Load Mode Buttons
+  const modeButtons = [
+    { id: 'mode-btn-ah', mode: 'ah' },
+    { id: 'mode-btn-al', mode: 'al' },
+    { id: 'mode-btn-bldc', mode: 'bldc' }
+  ];
+  modeButtons.forEach(item => {
+    document.getElementById(item.id).addEventListener('click', () => {
+      loadMode = item.mode;
+      modeButtons.forEach(m => document.getElementById(m.id).classList.toggle('active', m.mode === loadMode));
+      updateSimulator();
+    });
+  });
+
+  toggleVolatileBtn.addEventListener('click', () => {
+    volatileEnabled = !volatileEnabled;
+    toggleVolatileBtn.textContent = volatileEnabled
+      ? '🛡️ volatile 키워드: ON (정상 출력)'
+      : '⚠️ volatile 키워드: OFF (최적화로 쓰기 증발!)';
+    toggleVolatileBtn.className = 'action-btn ' + (volatileEnabled ? 'emerald-active' : 'rose-active');
+    updateSimulator();
+  });
+
+  function tick() {
+    if (!isPlaying) return;
+    simTime += 0.35;
+    if (simTime > 100) simTime = 0;
+    slider.value = String(simTime);
+    updateSimulator();
+    animId = requestAnimationFrame(tick);
+  }
+
+  playBtn.addEventListener('click', () => {
+    isPlaying = !isPlaying;
+    playBtn.textContent = isPlaying ? '⏸ 일시정지' : '▶ 자동 재생';
+    if (isPlaying) animId = requestAnimationFrame(tick);
+    else cancelAnimationFrame(animId);
+  });
+
+  updateSimulator();
+
+  /* =========================================================================
+     PART 5: QUIZ INTERACTION
+     ========================================================================= */
+  document.querySelectorAll('.quiz-card').forEach(card => {
+    const group = card.querySelector('.quiz-options');
+    const ans = Number(group.dataset.answer);
+    const fb = card.querySelector('.quiz-feedback');
+    group.querySelectorAll('.quiz-opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = Number(btn.dataset.idx);
+        group.querySelectorAll('.quiz-opt').forEach(b => b.classList.remove('correct', 'wrong'));
+        fb.style.display = 'block';
+        if (idx === ans) {
+          btn.classList.add('correct');
+          fb.style.color = '#6ee7b7';
+          fb.textContent = '✅ 정답입니다! 핵심 원리를 정확히 꿰뚫어 보셨네요.';
+        } else {
+          btn.classList.add('wrong');
+          fb.style.color = '#fda4af';
+          fb.textContent = '❌ 아쉬워요! 위 비유/정석 설명 카드를 다시 한번 참고해 볼까요?';
+        }
+      });
+    });
+  });
+
+})();
+</script>
+</body>
+</html>
