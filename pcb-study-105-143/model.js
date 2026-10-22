@@ -21,7 +21,7 @@
   return {measuredV,errorV,estimatedI:measuredV/r,shuntPower:current*current*r};
  }
  function ntc(resistance){finite(resistance);if(resistance<=0)throw Error('NTC 저항은 양수입니다.');return 3.3*resistance/(3300+resistance);}
- function pour(netName,via,isolated,actualGap,ruleGap){finite(actualGap,ruleGap);if(actualGap<0||ruleGap<0)throw Error('간격은 음수일 수 없습니다.');const errors=[];if(netName!=='GND')errors.push('wrong-net');if(!via||isolated)errors.push('isolated');if(actualGap<ruleGap)errors.push('clearance');return {connected:netName==='GND'&&via&&!isolated,errors};}
+ function pour(netName,via,isolated,actualGap,ruleGap){finite(actualGap,ruleGap);if(actualGap<0||ruleGap<0)throw Error('간격은 음수일 수 없습니다.');const errors=[];if(netName!=='GND')errors.push('wrong-net');if(!via)errors.push('missing-via');if(isolated)errors.push('isolated');if(actualGap<ruleGap)errors.push('clearance');return {connected:netName==='GND'&&via&&!isolated,errors};}
  function returnPath(split,bridge){return {connected:!split||bridge,detour:split&&bridge};}
  function ldo(vin,vout,current){finite(vin,vout,current);if(vin<vout||vout<0||current<0)throw Error('강압 LDO의 계산 조건을 확인하세요.');return (vin-vout)*current;}
  const api={net,mapping,checkDesign,trace,buck,boardSense,placement,kelvin,ntc,pour,returnPath,ldo};

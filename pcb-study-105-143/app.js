@@ -26,8 +26,8 @@ function render(n,f,action){
  b+=rect(30,230,500,40,'','core '+hl('core'))+rect(30,220,500,9,'','copper')+rect(30,271,500,9,'','copper')+rect(30,211,185,8,'','mask '+hl('mask'))+rect(285,211,245,8,'','mask '+hl('mask'))+rect(235,218,10,65,'','copper '+hl('via'))+rect(265,218,10,65,'','copper '+hl('via'))+txt(315,257,'절연층');
  out(n,desc[v.feature][0],b,[['요소',desc[v.feature][0]],['역할',desc[v.feature][1]]],desc[v.feature][1]+'. 색은 구분을 돕기 위한 모식도이며 실제 재료색·비율과 다릅니다.');
  }else if(n===3){
- const errors=M.mapping(v.package==='match',v.reverse),a=v.reverse?'2':'1',b=v.reverse?'1':'2';
- out(n,'심벌과 풋프린트 대응',txt(30,35,'회로 심벌')+rect(60,100,140,70,'H1')+txt(25,200,'1 GND')+txt(150,200,'2 +5V')+txt(315,35,'실제 풋프린트')+rect(320,90,220,100,'','board')+rect(330,110,40,55,a,'copper')+rect(450,110,40,55,b,'copper')+(v.package!=='match'?rect(390,110,40,55,'3','copper'):'')+line(v.reverse?'M45 160L470 210M225 160L350 210':'M45 160L350 210M225 160L470 210','airwire')+txt(30,260,'예시: 핀 번호와 패키지 크기를 각각 검토'),
+ const errors=M.mapping(v.package==='match',v.reverse);
+ out(n,'심벌과 풋프린트 대응',txt(30,35,'회로 심벌')+rect(60,80,140,90)+txt(120,105,'H1')+txt(67,145,'1 GND')+txt(143,145,'2 +5V')+txt(315,35,'실제 풋프린트')+rect(320,70,220,120,'','board')+rect(330,95,40,55,'1','copper')+rect(450,95,40,55,'2','copper')+(v.package!=='match'?rect(390,95,40,55,'3','copper'):'')+line(v.reverse?'M95 170V230H470V150M165 170V205H350V150':'M95 170V205H350V150M165 170V230H470V150','airwire')+dot(95,170,4)+dot(165,170,4)+txt(315,265,v.reverse?'연결: 1→2, 2→1':'연결: 1→1, 2→2')+txt(30,288,'예시: 핀 번호와 패키지 크기를 각각 검토'),
  [['패키지',v.package==='match'?'일치':'불일치'],['핀 대응',v.reverse?'뒤바뀜':'1→1, 2→2']],errors.length?'문제: '+errors.map(e=>e==='package'?'부품 크기와 패드 간격 불일치':'핀 번호 뒤바뀜').join(' / ')+'. 전원 커넥터는 핀이 바뀌면 역극성 위험이 있으므로 번호와 넷을 대조합니다.':'심벌과 풋프린트의 핀 번호·패키지가 일치합니다. 실제 부품 데이터시트로 치수도 대조하세요.');
  }else if(n===4){
  const r=M.net(v.left,v.right,v.routed);
@@ -44,7 +44,7 @@ function render(n,f,action){
  const on=v.state==='on';M.buck(v.state);
  let b=txt(20,28,'비동기 buck · 연속 전류(CCM) 모형')+line('M50 80H145M205 80H255M335 80H480V245H50V80')+rect(145,60,60,40,on?'ON':'OFF')+rect(255,60,80,40,'L')+txt(28,60,'VIN')+txt(430,60,'VOUT')+dot(235,80)+txt(215,65,'SW')+line('M95 80V135M95 160V245M80 135H110M80 160H110')+txt(42,192,'Cin')+line('M395 80V135M395 160V245M380 135H410M380 160H410')+txt(410,160,'Cout')+rect(450,140,60,50,'부하')+line('M235 80V150M235 180V245')+'<path d="M220 180L235 155L250 180Z" class="diode"/>'+line('M218 150H252')+txt(255,175,'D')+txt(250,210,'A: GND / K: SW')+txt(35,275,'GND');
  b+=line(on?'M55 80H140':'M235 235V185','flow',true)+line('M340 80H385','flow',true)+line(on?'M440 245H120':'M440 245H240','flow',true);
- if(v.feedback)b+=line('M430 95V290H170V115','feedback')+txt(195,310,'출력 감지 → 제어기 (간략화)');
+ if(v.feedback)b+=rect(135,120,85,35,'제어기')+line('M430 80V290H177V155','feedback')+line('M177 120V100','feedback')+txt(245,310,'출력 감지 → 제어기');
  out(n,'buck '+v.state,b,[['상단 스위치',on?'도통':'차단'],['캐치 다이오드',on?'역바이어스':'전류 경로 도통']],on?'VIN에서 스위치·인덕터·부하로 전류가 흐릅니다. Cin은 입력과 GND 사이에 병렬로 놓입니다.':'인덕터 전류는 같은 방향을 유지하며 GND→다이오드→SW→L→부하→GND로 순환합니다. 스위치를 끈 즉시 L 전류가 0이 되는 모형이 아닙니다.',330);
  }else if(n===7){
  const blocks={ldo:['LDO','5V에서 3.3V로 선형 강압'],bypass:['바이패스','전원 핀 가까이 순간 전류를 공급'],dac:['DAC','디지털 값을 아날로그 전압으로 변환'],header:['헤더','외부 신호·전원 연결'],eeprom:['EEPROM','전원이 꺼져도 설정 데이터를 보관']};
@@ -68,8 +68,8 @@ function renderExtra(n,f,action){
  if(v.hole)b+=dot(cx+17,125,17,'hole');
  out(n,'외곽과 커넥터 위치',b+txt(30,275,'보드 '+v.width+' mm / 커넥터 x='+v.x+' mm, 폭 10 mm'),[['외곽 범위',errors.includes('outside')?'커넥터 돌출':'외곽 안'],['체결 영역',v.hole?'간섭 설정':'간섭 없음']],errors.length?'기구 문제: '+errors.map(e=>e==='outside'?'커넥터가 외곽을 넘음':'체결 영역과 간섭').join(' · ')+'. 연결이 맞아도 조립이 불가능할 수 있습니다.':'이 단순 외곽·체결 검사는 통과했습니다. 실제 높이·케이블·공구 접근성은 추가로 확인합니다.');
  }else if(n===10){
- const dx=v.driver==='near'?350:70,ax=v.analog==='near'?340:80,ix=v.input==='near'?410:70;
- out(n,'기능별 배치',rect(25,45,510,250,'','board')+rect(390,80,120,60,'MOSFET')+rect(dx,175,120,55,'Driver')+line('M'+(dx+60)+' 175V155H450V140','selected')+rect(ax,240,140,40,'Analog/ADC')+rect(ix,50,90,30,'Cin')+line('M'+(ix+45)+' 80V90H390','flow',true)+txt(35,325,'프리셋 위치 · 길이와 면적은 상대 비교'),[['Driver 경로',v.driver==='near'?'짧은 프리셋':'긴 프리셋'],['아날로그 구역',v.analog==='near'?'스위칭부 근처':'이격 프리셋']],(v.driver==='far'?'게이트 경로가 깁니다. ':'게이트 경로가 짧습니다. ')+(v.analog==='near'?'민감 회로가 스위칭부에 가깝습니다. ':'민감 회로를 이격했습니다. ')+(v.input==='near'?'입력 커패시터를 근접 배치했습니다.':'입력 커패시터 연결이 깁니다.')+' 수치 EMI 점수를 계산하는 실험은 아닙니다.',350);
+ const dx=v.driver==='near'?350:70,ax=v.analog==='near'?340:80,ix=v.input==='near'?365:70;
+ out(n,'기능별 배치',rect(25,45,510,250,'','board')+rect(390,80,120,60,'MOSFET')+rect(dx,175,120,55,'Driver')+line('M'+(dx+60)+' 175V155H450V140','selected')+rect(ax,240,140,40,'Analog/ADC')+rect(ix,50,65,28,'벌크 C')+rect(465,50,65,28,'입력 H1')+line('M'+(ix+65)+' 64H465','airwire')+txt(35,325,'프리셋 위치 · 길이와 면적은 상대 비교'),[['Driver 경로',v.driver==='near'?'짧은 프리셋':'긴 프리셋'],['아날로그 구역',v.analog==='near'?'스위칭부 근처':'이격 프리셋'],['입력–벌크 C',v.input==='near'?'짧은 프리셋':'긴 프리셋']],(v.driver==='far'?'게이트 경로가 깁니다. ':'게이트 경로가 짧습니다. ')+(v.analog==='near'?'민감 회로가 스위칭부에 가깝습니다. ':'민감 회로를 이격했습니다. ')+(v.input==='near'?'입력 커넥터와 벌크 C가 가깝습니다.':'벌크 C가 입력 커넥터에서 멉니다.')+' 고주파 입력 바이패스의 짧은 스위칭 루프는 실험 12에서 따로 봅니다. 수치 EMI 점수를 계산하는 실험은 아닙니다.',350);
  }else if(n===11){
  if(v.layers==='2'&&v.location==='inner'){f.elements.namedItem('location').value='outer';v.location='outer';}
  const r=M.trace(v.length,v.width,v.thickness,v.current),count=Number(v.layers);
@@ -81,18 +81,18 @@ function renderExtra(n,f,action){
  const compact=v.route==='compact',y=compact?120:235,x=compact?350:480;
  let b=txt(30,30,'buck 입력 hot loop · 배치 평면 개념도')+rect(50,45,80,45,'Cin')+rect(240,45,95,45,'SW IC')+rect(x-35,y-20,70,40,'D')+line('M100 65H280H'+x+'V'+y+'H100Z','flow',true)+txt(100,y+45,'귀환')+txt(25,310,'상대 눈금이며 실제 mm가 아닙니다.');
  for(let i=0;i<Number(v.vias);i++)b+=dot(150+i*45,y,8,'pad');
- out(n,'입력 고주파 루프',b,[['상대 루프 면적',(x-100)*(y-65)+' u²'],['상대 경로 길이',2*(x-100+y-65)+' u']],compact?'Cin–입력 스위치–캐치 다이오드 연결 루프가 좁아졌습니다. SW 구리를 무조건 넓히는 것과 다릅니다.':'같은 넷도 크게 우회하면 루프 면적이 커집니다. 비아 개수만으로 인덕턴스나 EMI를 계산하지 않습니다.',340);
+ out(n,'입력 고주파 루프',b,[['상대 루프 면적',(x-100)*(y-65)+' u²'],['상대 경로 길이',2*(x-100+y-65)+' u']],compact?'Cin–입력 스위치–캐치 다이오드 연결 루프가 좁아졌습니다. SW 구리를 무조건 넓히는 것과 다릅니다.':'같은 회로라도 전류·귀환 경로가 크게 우회하면 루프 면적이 커집니다. 비아 개수만으로 인덕턴스나 EMI를 계산하지 않습니다.',340);
  }else if(n===13){
  if(!s.applied||action==='refill')s.applied={...v};
  const a=s.applied,r=M.pour(a.net,a.via,a.island,a.gap,a.rule),pending=JSON.stringify(v)!==JSON.stringify(a);
  const clearance=5+a.gap*15;
- let b=txt(25,30,'상층 pour → 비아 → 하층 GND · 직접 접촉 없음')+rect(30,50,500,150,'','board')+rect(50,70,a.island?190:450,110,'','copper')+txt(65,100,a.net+' pour')+rect(400-clearance,100-clearance,75+2*clearance,35+2*clearance,'',a.gap<a.rule?'hole hot':'hole')+rect(400,100,75,35,'PAD','part')+txt(335,175,'간격 '+a.gap+' mm')+txt(30,235,'하층 GND')+line('M50 255H510','selected');
- if(a.via)b+=dot(a.island?450:200,155,10,'pad')+line('M'+(a.island?450:200)+' 165V255','selected');else b+=txt(65,170,'비아 없음');
+ let b=txt(25,30,'목표: 상층 GND pour → 비아 → 하층 GND')+rect(30,50,500,150,'','board')+rect(50,70,a.island?190:450,110,'','copper')+(a.island?rect(270,70,230,110,'','copper'):'')+txt(65,100,a.net+' pour')+(a.island?txt(315,95,'비아 구역'):'')+rect(400-clearance,100-clearance,75+2*clearance,35+2*clearance,'',a.gap<a.rule?'hole hot':'hole')+rect(400,100,75,35,'PAD','part')+txt(335,175,'간격 '+a.gap+' mm')+txt(30,235,'하층 GND')+line('M50 255H510','selected');
+ if(a.via){const viaX=a.island?300:200;b+=dot(viaX,155,10,'pad');if(a.net==='GND')b+=line('M'+viaX+' 165V255','selected');}else b+=txt(65,170,'비아 없음');
  if(a.island)b+=rect(245,70,25,110,'','hole')+txt(55,175,'단절된 섬');
- out(n,'구리 채움 검사',b,[['적용 간격 / 규칙',a.gap+' / '+a.rule+' mm'],['채움 상태',pending?'수정 대기 · 다시 채우기':r.errors.length+'개 문제']],(pending?'“다시 채우기”를 눌러 갱신하세요. 현재 적용값: ':'')+(r.errors.length?r.errors.map(e=>({'wrong-net':'목표 GND와 다른 넷','isolated':'하층 GND에 연결되지 않은 섬','clearance':'규칙보다 작은 간격'}[e])).join(' / '):'GND 넷·층간 연결·간격 조건 충족')+'. 이 실험은 상층 구리가 하층 GND에 비아로만 연결되는 조건입니다.');
+ out(n,'구리 채움 검사',b,[['적용 간격 / 규칙',a.gap+' / '+a.rule+' mm'],['채움 상태',pending?'수정 대기 · 다시 채우기':r.errors.length+'개 문제']],(pending?'“다시 채우기”를 눌러 갱신하세요. 현재 적용값: ':'')+(r.errors.length?r.errors.map(e=>({'wrong-net':'목표 GND와 다른 넷','missing-via':'하층 GND로 가는 비아 없음','isolated':'keepout으로 고립된 구리 조각','clearance':'규칙보다 작은 간격'}[e])).join(' / '):'GND 넷·층간 연결·간격 조건 충족')+'. 이 실험은 상층 구리가 하층 GND에 비아로만 연결되는 조건입니다.');
  }else if(n===14){
  const near=v.distance==='near',x=near?350:465,dis=v.gate==='discharge';
- let b=txt(20,25,'소형보드 B · 고측 게이트 경로')+rect(30,110,110,130,'IR2101')+txt(45,105,'VB')+txt(110,255,'VS')+txt(110,150,'HO')+rect(x,120,70,95,'MOSFET')+txt(x+4,115,'Gate')+txt(x+4,235,'Source')+line('M140 145H190M270 145H'+x+'M'+(x+35)+' 215V285H105V240')+rect(190,125,80,35,'R22 10Ω')+line('M155 145V75H190M270 75H310V145')+rect(190,55,80,35,'R24 10Ω')+'<path d="M300 65L280 75L300 85Z" class="diode"/>'+line('M278 62V88')+txt(278,45,'D2 ←')+line('M'+(x+35)+' 215V285H105V240','selected');
+ let b=txt(20,25,'소형보드 B · 고측 게이트 경로')+rect(30,110,110,130,'IR2101')+txt(45,105,'VB')+txt(110,255,'VS')+txt(110,150,'HO')+rect(x,120,70,95,'MOSFET')+txt(x+4,115,'Gate')+txt(x+4,235,'Source')+line('M140 145H190M270 145H'+x+'M'+(x+35)+' 215V285H105V240')+rect(190,125,80,35,'R22 10Ω')+line('M155 145V75H190M270 75H278M300 75H310V145')+rect(190,55,80,35,'R24 10Ω')+'<path d="M300 65L280 75L300 85Z" class="diode"/>'+line('M278 62V88')+txt(278,45,'D2 ←')+line('M'+(x+35)+' 215V285H105V240','selected');
  b+=line(dis?'M'+(x-5)+' 145H275':'M145 145H185','flow',true);
  if(dis)b+=line('M310 137V75H303','flow',true)+line('M185 75H156V130','flow',true);
  b+=txt(145,325,dis?'방전: R22 및 R24·D2 병렬':'충전: R22 / D2 역바이어스');
@@ -101,7 +101,7 @@ function renderExtra(n,f,action){
  else b+=txt(25,350,'오류: C84의 VS 귀환 누락');
  b+=txt(25,385,'부트스트랩: VB–C84–VS')+txt(25,420,'VCC')+line('M75 415H165M300 415H400','selected')+rect(165,395,135,40,'C80 / C81')+txt(410,420,'COM')+txt(25,465,'독립 전원 바이패스: VCC–C80/C81–COM');
  if(v.shared)b+=line('M'+(x+35)+' 285H20','flow',true)+txt(25,305,'전력 전류가 VS 귀환 공유');
- out(n,'게이트 '+(dis?'방전':'충전'),b,[['배치 경로',near?'가까운 프리셋':'먼 프리셋'],['커패시터 귀환',v.caps?'부트스트랩·바이패스 구분':'잘못된 귀환']],(dis?'D2는 gate→driver 방향으로 도통하여 R24 경로를 추가합니다. R22에도 방전 전류가 흐를 수 있으며 분배량은 계산하지 않습니다.':'HO가 R22를 통해 게이트를 충전합니다. D2 캐소드는 driver 쪽이므로 이 방향은 역바이어스입니다.')+(v.shared?' Source 귀환을 전력 전류와 공유하여 공통 임피던스 영향이 생길 수 있습니다.':' 드라이버 귀환을 전력 경로와 구분합니다.')+' R25·C58 등은 경로 그림에서 생략했습니다.',490);
+ out(n,'게이트 '+(dis?'방전':'충전'),b,[['배치 경로',near?'가까운 프리셋':'먼 프리셋'],['C84 VS 귀환',v.caps?'연결':'누락']],(dis?'D2는 gate→driver 방향으로 도통하여 R24 경로를 추가합니다. R22에도 방전 전류가 흐를 수 있으며 분배량은 계산하지 않습니다.':'HO가 R22를 통해 게이트를 충전합니다. D2 캐소드는 driver 쪽이므로 이 방향은 역바이어스입니다.')+(v.shared?' Source 귀환을 전력 전류와 공유하여 공통 임피던스 영향이 생길 수 있습니다.':' 드라이버 귀환을 전력 경로와 구분합니다.')+(v.caps?' C84는 VB–VS로 연결됩니다.':' C84의 VS 귀환이 빠졌습니다.')+' C80/C81은 VCC–COM에 고정해 표시합니다. R25·C58 등은 경로 그림에서 생략했습니다.',490);
  }else if(n===15){
  const r=M.kelvin(v.current,v.shunt,v.lead,v.kelvin),a=v.kelvin?230:70,b=v.kelvin?330:490;
  out(n,'Kelvin 감지',txt(25,30,'전력 경로와 전압 감지 위치')+line('M30 95H530','copper-line')+rect(80,75,80,40,v.lead+' mΩ')+rect(230,65,100,60,v.shunt+' mΩ')+rect(400,75,80,40,v.lead+' mΩ')+line('M'+a+' 95V210H240M'+b+' 95V210H320','feedback')+rect(240,185,80,55,'측정')+dot(a,95)+dot(b,95)+line(v.current>=0?'M30 50H180':'M180 50H30','flow',true)+txt(350,50,v.current+' A')+txt(35,280,v.kelvin?'션트 양단에 별도 sense':'전력 배선 양 끝에서 sense'),[['측정 / 리드 오차',num(r.measuredV*1000,1)+' / '+num(r.errorV*1000,1)+' mV'],['환산 전류 / 션트 손실',num(r.estimatedI,2)+' A / '+num(r.shuntPower,3)+' W']],v.kelvin?'이상적인 무전류 sense 선이 션트 양단만 읽어 전력 리드 강하를 제외합니다. 증폭기 오프셋·저항 공차 등은 남습니다.':'양쪽 리드 전압 강하가 포함됩니다. 저항이 작은 션트일수록 같은 배선 저항의 비중이 커집니다.');
