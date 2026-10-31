@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STM32 고급 타이머: 암 쇼트 방지, 상보 PWM & 반복 카운터(RCR) 인터랙티브 시뮬레이터</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.15); opacity: 0.3; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .pulse-glow { animation: pulse-ring 1.8s ease-in-out infinite; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans select-none pb-12">
+
+  <!-- Header -->
+  <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex flex-wrap items-center justify-between gap-4 shadow-xl sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <span class="px-2.5 py-1 text-xs font-bold rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/40">Inside Embedded · 84~85강</span>
+      <div>
+        <h1 class="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
+          ⚡ STM32 TIM1/TIM8 반복 카운터(RCR) &amp; 상보 PWM 데드타임 시뮬레이터
+        </h1>
+        <p class="text-xs text-slate-400 mt-0.5">
+          Center-aligned 삼각파 카운터, RCR 다운카운트, UEV 인터럽트 발생 위치 및 암 쇼트 방지 데드타임 완전 정복
+        </p>
+      </div>
+    </div>
+
+    <!-- Animation Controls -->
+    <div class="flex items-center gap-3 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800">
+      <button id="btnPlayPause" onclick="togglePlay()" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-cyan-600 hover:bg-cyan-500 text-white transition flex items-center gap-1.5 shadow-md shadow-cyan-900/30">
+        <span id="playIcon">⏸️</span> <span id="playText">일시정지</span>
+      </button>
+      <button onclick="resetSim()" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+        🔄 리셋
+      </button>
+      <div class="flex items-center gap-2 ml-2 pl-3 border-l border-slate-800 text-xs">
+        <span class="text-slate-400">속도:</span>
+        <input type="range" id="speedSlider" min="0.2" max="2.5" step="0.1" value="1" class="w-20 accent-cyan-400 cursor-pointer" oninput="updateSpeed(this.value)">
+        <span id="speedVal" class="text-cyan-400 font-mono text-xs w-8">1.0x</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl w-full mx-auto p-6 space-y-6">
+
+    <!-- Control Panel -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      
+      <!-- Box 1: 카운터 정렬 모드 -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-lg">
+        <div class="flex items-center justify-between mb-3">
+          <label class="text-sm font-bold text-slate-200">1. 타이머 카운팅 모드</label>
+          <span id="modeBadge" class="text-xs font-semibold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">Center-aligned</span>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <button onclick="setMode('center')" id="btnCenter" class="px-3 py-2 text-xs font-bold rounded-xl border bg-cyan-600 border-cyan-400 text-white shadow-md">
+            Center-aligned<br><span class="text-[10px] font-normal opacity-80">(중앙정렬 삼각파)</span>
+          </button>
+          <button onclick="setMode('up')" id="btnUp" class="px-3 py-2 text-xs font-bold rounded-xl border bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700">
+            Up-count<br><span class="text-[10px] font-normal opacity-80">(0 → ARR 오버플로우)</span>
+          </button>
+          <button onclick="setMode('down')" id="btnDown" class="px-3 py-2 text-xs font-bold rounded-xl border bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700">
+            Down-count<br><span class="text-[10px] font-normal opacity-80">(ARR → 0 언더플로우)</span>
+          </button>
+        </div>
+        <p class="text-[11px] text-slate-400 mt-2.5 leading-relaxed" id="modeDesc">
+          ⭐ <b>모터 제어 표준:</b> 0에서 ARR까지 올라갔다 다시 0으로 내려오며 노이즈(고조파)를 최소화합니다.
+        </p>
+      </div>
+
+      <!-- Box 2: RCR 레지스터 값 설정 (0 ~ 5) -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-lg">
+        <div class="flex items-center justify-between mb-3">
+          <label class="text-sm font-bold text-slate-200">2. 반복 카운터 (<code class="text-amber-400 font-mono">TIMx_RCR</code>)</label>
+          <span class="text-lg font-mono font-black text-amber-400 bg-amber-950/60 border border-amber-500/30 px-3 py-0.5 rounded-lg" id="rcrDisplay">1</span>
+        </div>
+        <div class="grid grid-cols-6 gap-1.5 mb-3">
+          <button onclick="setRCR(0)" class="rcr-btn px-2 py-1.5 text-xs font-bold rounded-lg border bg-slate-800 border-slate-700 text-slate-300">0</button>
+          <button onclick="setRCR(1)" class="rcr-btn px-2 py-1.5 text-xs font-bold rounded-lg border bg-amber-600 border-amber-400 text-white shadow-md">1★</button>
+          <button onclick="setRCR(2)" class="rcr-btn px-2 py-1.5 text-xs font-bold rounded-lg border bg-slate-800 border-slate-700 text-slate-300">2</button>
+          <button onclick="setRCR(3)" class="rcr-btn px-2 py-1.5 text-xs font-bold rounded-lg border bg-slate-800 border-slate-700 text-slate-300">3</button>
+          <button onclick="setRCR(4)" class="rcr-btn px-2 py-1.5 text-xs font-bold rounded-lg border bg-slate-800 border-slate-700 text-slate-300">4</button>
+          <button onclick="setRCR(5)" class="rcr-btn px-2 py-1.5 text-xs font-bold rounded-lg border bg-slate-800 border-slate-700 text-slate-300">5</button>
+        </div>
+        <div class="text-[11px] text-amber-200/90 bg-amber-950/40 p-2.5 rounded-xl border border-amber-900/50" id="rcrHint">
+          <b>RCR = 1 (홀수 설정):</b> 오버플로우(꼭대기)에서만 UEV가 발생하고 바닥은 건너뜁니다! (주기당 1회)
+        </div>
+      </div>
+
+      <!-- Box 3: 실시간 상태 대시보드 -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between">
+        <label class="text-sm font-bold text-slate-200">3. 타이머 실시간 하드웨어 레지스터</label>
+        <div class="grid grid-cols-3 gap-2 my-2 text-center font-mono">
+          <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block mb-1">카운터 (CNT)</span>
+            <span id="valCNT" class="text-cyan-400 font-bold text-lg">0</span>
+          </div>
+          <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block mb-1">RCR 카운트다운</span>
+            <span id="valRCRNow" class="text-amber-400 font-bold text-lg">1</span>
+          </div>
+          <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+            <span class="text-[10px] text-slate-400 block mb-1">이벤트 발생(UEV)</span>
+            <span id="valUEV" class="text-slate-500 font-bold text-sm">대기</span>
+          </div>
+        </div>
+        <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-800">
+          <span>방향: <b id="valDir" class="text-cyan-300">UP ↑</b></span>
+          <span>ARR (상한값): <b class="text-slate-200">100</b></span>
+          <span>CCR (비교값): <b class="text-emerald-400">50</b></span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Interactive Waveform Visualizer (Canvas & SVG Hybrid) -->
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-base font-bold text-white flex items-center gap-2">
+          📊 실시간 다단 동기화 파형 (Real-time Multi-tier Synchronized Waveforms)
+        </h2>
+        <div class="flex items-center gap-4 text-xs">
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-cyan-400 inline-block"></span> 카운터(CNT)</span>
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-emerald-400 inline-block"></span> CH1 (상단MOS)</span>
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-rose-400 inline-block"></span> CH1N (하단MOS)</span>
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-purple-500/60 inline-block"></span> 데드타임(DT)</span>
+          <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-amber-400 inline-block"></span> UEV(인터럽트)</span>
+        </div>
+      </div>
+
+      <!-- Main Canvas for dynamic waveforms -->
+      <div class="relative bg-slate-950 rounded-xl border border-slate-800/80 overflow-hidden" style="height: 420px;">
+        <canvas id="waveCanvas" class="w-full h-full block"></canvas>
+      </div>
+    </div>
+
+    <!-- Deep-Dive Concept Explanation Cards (슬라이드 핵심 문장 해부) -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <!-- Card 1: 반복 카운터와 UEV 발생의 기저 원리 -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl">
+        <h3 class="text-base font-bold text-amber-400 flex items-center gap-2">
+          📖 1. 반복 카운터(TIMx_RCR)는 왜 필요하고 어떻게 동작하는가?
+        </h3>
+        <div class="space-y-3 text-xs leading-relaxed text-slate-300">
+          <p>
+            <b class="text-white">● STM32 고급 타이머(TIM1, TIM8) 전용 기능:</b> 일반 범용 타이머(TIM2~5)에는 없고 오직 모터 제어용 고급 타이머에만 존재하는 특수 레지스터입니다.
+          </p>
+          <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2">
+            <span class="text-amber-300 font-semibold block">💡 RCR 동작의 3단계 흐름:</span>
+            <ol class="list-decimal list-inside space-y-1 text-slate-400">
+              <li>사용자가 <code class="text-amber-400">TIMx_RCR</code>에 값 $N$을 미리 적어둡니다. (예: $N=1$)</li>
+              <li>카운터가 돌며 <b>오버플로우(꼭대기)</b>나 <b>언더플로우(바닥)</b>를 만날 때마다 RCR 섀도우 값이 <b>1씩 감소(Down-count)</b>합니다.</li>
+              <li>RCR 값이 $0$에 도달하는 순간! 비로소 하드웨어가 <b>업데이트 이벤트(UEV)</b>를 발생시켜 인터럽트를 걸거나 ADC를 격발합니다. 이후 RCR은 다시 $N$으로 리로드됩니다.</li>
+            </ol>
+          </div>
+          <p class="text-rose-300 bg-rose-950/30 p-2.5 rounded-xl border border-rose-900/40">
+            ⚠️ <b>RCR이 없다면?</b> 20kHz 중앙 정렬 PWM에서 꼭대기(ARR)와 바닥(0) 양쪽에서 매번 UEV가 터져 <b>1초에 무려 40,000회 인터럽트</b>가 발생하여 CPU가 다른 일을 전혀 못 하고 멈추게 됩니다.
+          </p>
+        </div>
+      </div>
+
+      <!-- Card 2: 슬라이드의 수수께끼 - 왜 RCR이 홀수면 한쪽에서만 터지는가? -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl">
+        <h3 class="text-base font-bold text-cyan-400 flex items-center gap-2">
+          🎯 2. "Center-aligned 모드에서 RCR이 홀수이면 1가지에서만 동작"의 비밀
+        </h3>
+        <div class="space-y-3 text-xs leading-relaxed text-slate-300">
+          <p>
+            중앙 정렬 모드(Center-aligned)는 카운터가 <b class="text-cyan-300">0 → ARR(오버플로우) → 0(언더플로우)</b>를 무한 반복합니다.
+            즉, 이벤트 후보 지점은 <b>[꼭대기] ↔ [바닥]</b>이 번갈아(짝을 지어) 나타납니다.
+          </p>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse border border-slate-800 text-[11px]">
+              <thead class="bg-slate-950 text-slate-400">
+                <tr>
+                  <th class="p-2 border border-slate-800">RCR 설정</th>
+                  <th class="p-2 border border-slate-800">이벤트 만날 때 RCR 동작</th>
+                  <th class="p-2 border border-slate-800">UEV 발생 시점 (결과)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800 font-mono">
+                <tr>
+                  <td class="p-2 text-amber-400 font-bold">RCR = 0</td>
+                  <td class="p-2 text-slate-400">도장 0개 필요 → 만나는 족족 발생</td>
+                  <td class="p-2 text-rose-400 font-bold">꼭대기 &amp; 바닥 둘 다 (주기당 2회)</td>
+                </tr>
+                <tr class="bg-cyan-950/20">
+                  <td class="p-2 text-cyan-300 font-bold">RCR = 1 (홀수★)</td>
+                  <td class="p-2 text-slate-400">1회 건너뛰고 2번째마다 0 도달</td>
+                  <td class="p-2 text-emerald-400 font-bold">꼭대기에서만 딱 1회! (또는 바닥만)</td>
+                </tr>
+                <tr>
+                  <td class="p-2 text-amber-400 font-bold">RCR = 2 (짝수)</td>
+                  <td class="p-2 text-slate-400">2회 건너뛰고 3번째마다 0 도달</td>
+                  <td class="p-2 text-slate-300">꼭대기 → 바닥 → 꼭대기 번갈아 발생</td>
+                </tr>
+                <tr class="bg-cyan-950/20">
+                  <td class="p-2 text-cyan-300 font-bold">RCR = 3 (홀수)</td>
+                  <td class="p-2 text-slate-400">3회 건너뛰고 4번째마다 0 도달</td>
+                  <td class="p-2 text-emerald-400 font-bold">꼭대기에서만 2주기에 1회 발생!</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="text-[11px] bg-slate-950 p-3 rounded-xl border border-slate-800 text-slate-400">
+            👉 <b>"카운터 시작 전 vs 시작 후 설정":</b> 카운터가 0에서 위로 출발하므로, 타이머 시작 전에 RCR=1을 주면 첫 번째로 만나는 <b>꼭대기(오버플로우)</b>에 동기화됩니다. 타이머 동작 도중에 쓰면 다음 <b>바닥(언더플로우)</b>에 맞춰지게 됩니다.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Section 3: 암 쇼트(Arm Short) 방지와 모터 제어 전류 측정의 연결 -->
+    <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 space-y-4 shadow-xl">
+      <h3 class="text-base font-bold text-emerald-400 flex items-center gap-2">
+        🛡️ 3. 전동 킥보드 하드웨어와의 완벽한 연결 (암 쇼트 방지 &amp; 노이즈 0% ADC 측정)
+      </h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs text-slate-300">
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+          <span class="text-rose-400 font-bold block text-sm">🔥 1. 암 쇼트(Arm Short)의 위험</span>
+          <p class="leading-relaxed text-slate-400">
+            3상 인버터의 한 상(Phase)에서 상단 MOSFET(High-side)과 하단 MOSFET(Low-side)이 0.1마이크로초라도 동시에 켜지면 48V 배터리가 GND로 직통 쇼트되어 수백 A의 단락전류로 MOSFET이 폭발합니다.
+          </p>
+        </div>
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+          <span class="text-purple-400 font-bold block text-sm">⏱️ 2. 상보 PWM &amp; 데드타임(Dead-time)</span>
+          <p class="leading-relaxed text-slate-400">
+            MOSFET은 켜지는 속도보다 꺼질 때 게이트 전하 방전 때문에 더 늦게 꺼집니다. 따라서 상단이 꺼진 후 하단이 켜지기 직전, <b>"둘 다 확실하게 꺼져 있는 안전 공백 시간(Dead-time)"</b>을 TIM1/8이 하드웨어로 자동 삽입합니다.
+          </p>
+        </div>
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+          <span class="text-emerald-400 font-bold block text-sm">🎯 3. 왜 꼭대기(Crest)에서 ADC를 트리거하는가?</span>
+          <p class="leading-relaxed text-slate-400">
+            스위칭 순간에는 엄청난 전압/전류 스파이크(노이즈)가 튑니다. Center-aligned 삼각파의 <b>정중앙 꼭대기(Crest)</b>는 스위칭 노이즈가 완전히 사라지고 전류가 가장 평온하게 흐르는 <b>"골든 타임"</b>입니다. 이때 RCR=1로 발생한 UEV가 ADC를 자동 격발합니다!
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    // Simulation State
+    let isPlaying = true;
+    let speed = 1.0;
+    let mode = 'center'; // 'center', 'up', 'down'
+    let rcrSetting = 1;  // TIMx_RCR 설정값 (0 ~ 5)
+    
+    // Timer Registers
+    const ARR = 100;
+    const CCR = 50;
+    const DEAD_TIME = 10; // 카운터 단위
+    
+    let cnt = 0;
+    let direction = 1; // 1: Up, -1: Down
+    let currentRCR = 1;
+    let uevActive = false;
+    let uevFlashTimer = 0;
+    let lastUevType = ''; // 'crest', 'trough'
+
+    // History for waveform drawing
+    const historyLength = 450;
+    const history = [];
+
+    // Canvas setup
+    const canvas = document.getElementById('waveCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * window.devicePixelRatio;
+      canvas.height = rect.height * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function setMode(newMode) {
+      mode = newMode;
+      document.getElementById('btnCenter').className = mode === 'center' ? 'px-3 py-2 text-xs font-bold rounded-xl border bg-cyan-600 border-cyan-400 text-white shadow-md' : 'px-3 py-2 text-xs font-bold rounded-xl border bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700';
+      document.getElementById('btnUp').className = mode === 'up' ? 'px-3 py-2 text-xs font-bold rounded-xl border bg-cyan-600 border-cyan-400 text-white shadow-md' : 'px-3 py-2 text-xs font-bold rounded-xl border bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700';
+      document.getElementById('btnDown').className = mode === 'down' ? 'px-3 py-2 text-xs font-bold rounded-xl border bg-cyan-600 border-cyan-400 text-white shadow-md' : 'px-3 py-2 text-xs font-bold rounded-xl border bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700';
+      
+      const badge = document.getElementById('modeBadge');
+      const desc = document.getElementById('modeDesc');
+      if (mode === 'center') {
+        badge.innerText = 'Center-aligned';
+        desc.innerHTML = '⭐ <b>모터 제어 표준:</b> 0에서 ARR까지 올라갔다 다시 0으로 내려오며 노이즈(고조파)를 최소화합니다.';
+      } else if (mode === 'up') {
+        badge.innerText = 'Up-counting';
+        desc.innerHTML = '0에서 ARR까지 증가 후 0으로 리셋 (오버플로우 시점에만 RCR 감소).';
+      } else {
+        badge.innerText = 'Down-counting';
+        desc.innerHTML = 'ARR에서 0까지 감소 후 ARR로 리셋 (언더플로우 시점에만 RCR 감소).';
+      }
+      resetSim();
+    }
+
+    function setRCR(val) {
+      rcrSetting = val;
+      document.getElementById('rcrDisplay').innerText = val;
+      document.querySelectorAll('.rcr-btn').forEach((b, i) => {
+        if (i === val) {
+          b.className = 'rcr-btn px-2 py-1.5 text-xs font-bold rounded-lg border bg-amber-600 border-amber-400 text-white shadow-md';
+        } else {
+          b.className = 'rcr-btn px-2 py-1.5 text-xs font-bold rounded-lg border bg-slate-800 border-slate-700 text-slate-300';
+        }
+      });
+      const hint = document.getElementById('rcrHint');
+      if (val === 0) {
+        hint.innerHTML = '<b>RCR = 0 (기본값):</b> 오버플로우와 언더플로우 매 순간 UEV가 발생합니다. (1주기에 2회 인터럽트 💥 CPU 과부하)';
+      } else if (val % 2 === 1) {
+        hint.innerHTML = `<b>RCR = ${val} (홀수 설정 ★):</b> ${val === 1 ? '오버플로우(꼭대기)에서만 UEV가 발생합니다!' : `${(val+1)/2}주기마다 꼭대기에서 1회 발생!`}`;
+      } else {
+        hint.innerHTML = `<b>RCR = ${val} (짝수 설정):</b> 꼭대기와 바닥을 번갈아가며 ${val+1}번째 이벤트마다 UEV가 발생합니다.`;
+      }
+      currentRCR = rcrSetting;
+    }
+
+    function togglePlay() {
+      isPlaying = !isPlaying;
+      document.getElementById('playIcon').innerText = isPlaying ? '⏸️' : '▶️';
+      document.getElementById('playText').innerText = isPlaying ? '일시정지' : '재생';
+    }
+
+    function updateSpeed(val) {
+      speed = parseFloat(val);
+      document.getElementById('speedVal').innerText = speed.toFixed(1) + 'x';
+    }
+
+    function resetSim() {
+      cnt = mode === 'down' ? ARR : 0;
+      direction = mode === 'down' ? -1 : 1;
+      currentRCR = rcrSetting;
+      uevActive = false;
+      history.length = 0;
+    }
+
+    // Step Simulation
+    function stepTimer() {
+      let isCandidateEvent = false;
+      let eventType = ''; // 'overflow', 'underflow'
+
+      if (mode === 'center') {
+        if (direction === 1) {
+          cnt++;
+          if (cnt >= ARR) {
+            cnt = ARR;
+            direction = -1;
+            isCandidateEvent = true;
+            eventType = 'overflow';
+          }
+        } else {
+          cnt--;
+          if (cnt <= 0) {
+            cnt = 0;
+            direction = 1;
+            isCandidateEvent = true;
+            eventType = 'underflow';
+          }
+        }
+      } else if (mode === 'up') {
+        cnt++;
+        if (cnt > ARR) {
+          cnt = 0;
+          isCandidateEvent = true;
+          eventType = 'overflow';
+        }
+      } else if (mode === 'down') {
+        cnt--;
+        if (cnt < 0) {
+          cnt = ARR;
+          isCandidateEvent = true;
+          eventType = 'underflow';
+        }
+      }
+
+      // Check RCR countdown on Candidate Event
+      uevActive = false;
+      if (isCandidateEvent) {
+        if (currentRCR === 0) {
+          // UEV Triggered!
+          uevActive = true;
+          currentRCR = rcrSetting; // Reload
+          lastUevType = eventType;
+          uevFlashTimer = 18;
+        } else {
+          currentRCR--;
+        }
+      }
+
+      // Compute PWM Gates (CH1, CH1N) with Dead-Time
+      // Center-aligned PWM Mode 1: Active when CNT < CCR
+      let idealHigh = (cnt < CCR);
+      
+      // Compute actual gate with dead-time delay
+      let ch1 = false;
+      let ch1n = false;
+      let inDeadtime = false;
+
+      if (cnt < CCR - DEAD_TIME) {
+        ch1 = true;
+        ch1n = false;
+      } else if (cnt >= CCR && cnt < CCR + DEAD_TIME) {
+        // Dead time transition
+        ch1 = false;
+        ch1n = false;
+        inDeadtime = true;
+      } else {
+        ch1 = false;
+        ch1n = true;
+      }
+
+      // Record History
+      history.push({
+        cnt: cnt,
+        ch1: ch1,
+        ch1n: ch1n,
+        deadtime: inDeadtime,
+        uev: uevActive,
+        eventType: eventType,
+        rcr: currentRCR
+      });
+
+      if (history.length > historyLength) {
+        history.shift();
+      }
+
+      // Update UI Counters
+      document.getElementById('valCNT').innerText = cnt;
+      document.getElementById('valRCRNow').innerText = currentRCR;
+      document.getElementById('valDir').innerText = direction === 1 ? 'UP ↑' : 'DOWN ↓';
+      document.getElementById('valDir').className = direction === 1 ? 'text-cyan-400 font-bold' : 'text-amber-400 font-bold';
+
+      const uevBadge = document.getElementById('valUEV');
+      if (uevFlashTimer > 0) {
+        uevFlashTimer--;
+        uevBadge.innerText = '⚡ UEV 발생!';
+        uevBadge.className = 'text-amber-400 font-black text-sm pulse-glow bg-amber-500/20 px-2 py-0.5 rounded border border-amber-400';
+      } else {
+        uevBadge.innerText = '대기 (카운팅 중)';
+        uevBadge.className = 'text-slate-500 font-bold text-sm';
+      }
+    }
+
+    // Render Canvas Waveforms
+    function render() {
+      const rect = canvas.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
+
+      ctx.clearRect(0, 0, w, h);
+
+      // Background grid & section bands
+      // Band 1: CNT (y: 20 ~ 150)
+      // Band 2: CH1 (y: 165 ~ 225)
+      // Band 3: CH1N (y: 235 ~ 295)
+      // Band 4: UEV Pulses (y: 310 ~ 380)
+
+      const bandCNT = { yTop: 30, yBot: 140 };
+      const bandCH1 = { yTop: 165, yBot: 215 };
+      const bandCH1N = { yTop: 235, yBot: 285 };
+      const bandUEV = { yTop: 315, yBot: 375 };
+
+      // Section Guides & Labels
+      ctx.fillStyle = '#64748b';
+      ctx.font = '11px sans-serif';
+      ctx.fillText('TIMx_CNT (카운터 삼각파)', 16, bandCNT.yTop - 8);
+      ctx.fillText('CH1 (상단 MOSFET 게이트)', 16, bandCH1.yTop - 6);
+      ctx.fillText('CH1N (하단 MOSFET 게이트 - 상보)', 16, bandCH1N.yTop - 6);
+      ctx.fillText('UEV (업데이트 이벤트 / ADC 트리거)', 16, bandUEV.yTop - 6);
+
+      // ARR & CCR Guide lines in CNT band
+      ctx.strokeStyle = '#334155';
+      ctx.setLineDash([4, 4]);
+      
+      // ARR Line (100)
+      ctx.beginPath();
+      ctx.moveTo(140, bandCNT.yTop);
+      ctx.lineTo(w, bandCNT.yTop);
+      ctx.stroke();
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillText('ARR (100)', 85, bandCNT.yTop + 4);
+
+      // CCR Line (50)
+      const yCCR = bandCNT.yBot - (CCR / ARR) * (bandCNT.yBot - bandCNT.yTop);
+      ctx.strokeStyle = '#065f46';
+      ctx.beginPath();
+      ctx.moveTo(140, yCCR);
+      ctx.lineTo(w, yCCR);
+      ctx.stroke();
+      ctx.fillStyle = '#10b981';
+      ctx.fillText('CCR (50)', 85, yCCR + 4);
+
+      // Zero Line (0)
+      ctx.strokeStyle = '#334155';
+      ctx.beginPath();
+      ctx.moveTo(140, bandCNT.yBot);
+      ctx.lineTo(w, bandCNT.yBot);
+      ctx.stroke();
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillText('0 (Bottom)', 85, bandCNT.yBot + 4);
+      ctx.setLineDash([]);
+
+      if (history.length < 2) return;
+
+      const startX = 140;
+      const stepX = (w - startX) / historyLength;
+
+      // Draw Deadtime bands in background
+      for (let i = 0; i < history.length; i++) {
+        if (history[i].deadtime) {
+          const x = startX + i * stepX;
+          ctx.fillStyle = 'rgba(168, 85, 247, 0.2)';
+          ctx.fillRect(x, bandCH1.yTop - 4, stepX + 0.5, (bandCH1N.yBot - bandCH1.yTop) + 8);
+        }
+      }
+
+      // 1. Draw CNT Waveform
+      ctx.beginPath();
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2.5;
+      for (let i = 0; i < history.length; i++) {
+        const x = startX + i * stepX;
+        const val = history[i].cnt;
+        const y = bandCNT.yBot - (val / ARR) * (bandCNT.yBot - bandCNT.yTop);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      // Current moving cursor on CNT
+      const currentX = startX + (history.length - 1) * stepX;
+      const currentY = bandCNT.yBot - (cnt / ARR) * (bandCNT.yBot - bandCNT.yTop);
+      ctx.fillStyle = '#38bdf8';
+      ctx.beginPath();
+      ctx.arc(currentX, currentY, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 2. Draw CH1 Gate Waveform (Emerald)
+      ctx.beginPath();
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 2;
+      for (let i = 0; i < history.length; i++) {
+        const x = startX + i * stepX;
+        const y = history[i].ch1 ? bandCH1.yTop + 8 : bandCH1.yBot - 6;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      // 3. Draw CH1N Gate Waveform (Rose)
+      ctx.beginPath();
+      ctx.strokeStyle = '#f43f5e';
+      ctx.lineWidth = 2;
+      for (let i = 0; i < history.length; i++) {
+        const x = startX + i * stepX;
+        const y = history[i].ch1n ? bandCH1N.yTop + 8 : bandCH1N.yBot - 6;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      // 4. Draw UEV Event Pulses & Markers (Amber)
+      for (let i = 0; i < history.length; i++) {
+        if (history[i].uev) {
+          const x = startX + i * stepX;
+          
+          // Vertical guide line across all bands
+          ctx.strokeStyle = 'rgba(245, 158, 11, 0.4)';
+          ctx.setLineDash([3, 3]);
+          ctx.beginPath();
+          ctx.moveTo(x, bandCNT.yTop - 10);
+          ctx.lineTo(x, bandUEV.yBot);
+          ctx.stroke();
+          ctx.setLineDash([]);
+
+          // UEV Pulse arrow
+          ctx.strokeStyle = '#f59e0b';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(x, bandUEV.yBot - 8);
+          ctx.lineTo(x, bandUEV.yTop + 8);
+          ctx.stroke();
+
+          // Arrowhead
+          ctx.fillStyle = '#f59e0b';
+          ctx.beginPath();
+          ctx.moveTo(x - 5, bandUEV.yTop + 14);
+          ctx.lineTo(x + 5, bandUEV.yTop + 14);
+          ctx.lineTo(x, bandUEV.yTop + 4);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.font = 'bold 10px monospace';
+          ctx.fillStyle = '#fbbf24';
+          ctx.fillText('UEV', x - 10, bandUEV.yTop + 28);
+        }
+      }
+    }
+
+    // Main Loop
+    let lastTime = 0;
+    function loop(timestamp) {
+      if (!lastTime) lastTime = timestamp;
+      const dt = timestamp - lastTime;
+      lastTime = timestamp;
+
+      if (isPlaying) {
+        // Run multiple steps per frame depending on speed
+        const steps = Math.round(1.5 * speed);
+        for (let s = 0; s < steps; s++) {
+          stepTimer();
+        }
+      }
+
+      render();
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+
+    // Initial setup
+    setRCR(1);
+  </script>
+</body>
+</html>
