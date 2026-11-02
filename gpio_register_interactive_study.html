@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STM32 GPIO 아키텍처 & MODER 레지스터 인터랙티브 시뮬레이터</title>
+  <style>
+    :root {
+      --bg-dark: #0a0e17;
+      --card-bg: #111827;
+      --panel-bg: #162032;
+      --border-color: #24354f;
+      --accent-blue: #38bdf8;
+      --accent-green: #34d399;
+      --accent-yellow: #fbbf24;
+      --accent-red: #f87171;
+      --accent-purple: #c084fc;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --font-code: "JetBrains Mono", Consolas, "Courier New", monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Pretendard", sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      padding: 24px;
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px 28px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+    header h1 { font-size: 22px; color: var(--accent-blue); display: flex; align-items: center; gap: 10px; }
+    header p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+    .badge {
+      display: inline-block; padding: 4px 10px; border-radius: 999px;
+      font-size: 11px; font-weight: bold; background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-blue); border: 1px solid var(--accent-blue);
+    }
+
+    /* Tab navigation */
+    .nav-tabs {
+      display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+    }
+    .tab-btn {
+      background: transparent; border: 1px solid transparent; color: var(--text-muted);
+      padding: 8px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover { color: var(--text-main); background: rgba(255,255,255,0.05); }
+    .tab-btn.active {
+      color: var(--accent-blue); background: var(--panel-bg);
+      border-color: var(--accent-blue); box-shadow: 0 2px 8px rgba(56, 189, 248, 0.2);
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Dashboard Layout */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      margin-bottom: 20px;
+    }
+    .card h2 {
+      font-size: 16px; color: var(--text-main); margin-bottom: 14px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px;
+    }
+
+    /* Bit Board Styles */
+    .register-header {
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--panel-bg); padding: 12px 16px; border-radius: 8px;
+      margin-bottom: 16px; font-family: var(--font-code); font-size: 14px;
+    }
+    .val-hex { color: var(--accent-green); font-weight: bold; font-size: 18px; }
+    .val-bin { color: var(--accent-blue); font-size: 13px; letter-spacing: 1px; }
+
+    .bit-board-container {
+      overflow-x: auto; padding-bottom: 8px;
+    }
+    .bit-board {
+      display: grid; grid-template-columns: repeat(16, 1fr); gap: 6px; min-width: 860px;
+    }
+    .pin-slot {
+      background: var(--panel-bg); border: 1px solid var(--border-color);
+      border-radius: 8px; padding: 10px 4px; text-align: center;
+      transition: all 0.2s; cursor: pointer; position: relative;
+    }
+    .pin-slot:hover { border-color: var(--accent-blue); transform: translateY(-2px); }
+    .pin-slot.selected {
+      border-color: var(--accent-blue); background: rgba(56, 189, 248, 0.12);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+    }
+    .pin-slot.debug-pin { border-top: 3px solid var(--accent-yellow); }
+    .pin-slot.selected.debug-pin { border-color: var(--accent-yellow); }
+
+    .slot-pin-name { font-size: 12px; font-weight: bold; color: var(--text-main); }
+    .slot-bit-range { font-size: 9px; color: var(--text-muted); font-family: var(--font-code); margin: 2px 0 6px; }
+    .bit-pair {
+      display: flex; justify-content: center; gap: 3px; font-family: var(--font-code);
+    }
+    .bit-chip {
+      width: 18px; height: 22px; line-height: 22px; font-size: 11px; font-weight: bold;
+      border-radius: 4px; background: #0b121e; color: #64748b; border: 1px solid #1e293b;
+      user-select: none;
+    }
+    .bit-chip.on { background: #064e3b; color: var(--accent-green); border-color: var(--accent-green); }
+    .bit-chip.debug-on { background: #451a03; color: var(--accent-yellow); border-color: var(--accent-yellow); }
+
+    .slot-mode-tag {
+      margin-top: 6px; font-size: 10px; font-weight: bold; padding: 2px 4px;
+      border-radius: 4px; display: inline-block;
+    }
+    .mode-in  { background: rgba(148, 163, 184, 0.2); color: #cbd5e1; }
+    .mode-out { background: rgba(52, 211, 153, 0.2); color: var(--accent-green); }
+    .mode-af  { background: rgba(192, 132, 252, 0.2); color: var(--accent-purple); }
+    .mode-ana { background: rgba(248, 113, 113, 0.2); color: var(--accent-red); }
+
+    /* Controls Panel */
+    .slot-control-bar {
+      display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;
+      margin-top: 16px; padding: 14px 18px; background: var(--panel-bg); border-radius: 8px;
+    }
+    .mode-btn-group { display: flex; gap: 6px; }
+    .mode-btn {
+      padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border-color);
+      background: #0f172a; color: var(--text-muted); font-size: 12px; font-weight: bold;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .mode-btn:hover { color: #fff; border-color: #64748b; }
+    .mode-btn.active.in  { background: #1e293b; border-color: #94a3b8; color: #fff; }
+    .mode-btn.active.out { background: #064e3b; border-color: var(--accent-green); color: var(--accent-green); }
+    .mode-btn.active.af  { background: #3b0764; border-color: var(--accent-purple); color: var(--accent-purple); }
+    .mode-btn.active.ana { background: #450a0a; border-color: var(--accent-red); color: var(--accent-red); }
+
+    .btn-reset {
+      background: #1e293b; border: 1px solid var(--border-color); color: var(--text-main);
+      padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold;
+      transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+    }
+    .btn-reset:hover { background: #334155; border-color: var(--accent-blue); }
+
+    /* Warning Banner */
+    .warning-banner {
+      background: rgba(245, 158, 11, 0.15); border: 1px solid var(--accent-yellow);
+      color: #fef3c7; border-radius: 8px; padding: 12px 16px; margin-top: 14px;
+      font-size: 13px; display: none; align-items: center; gap: 10px;
+    }
+    .warning-banner.show { display: flex; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
+
+    /* Circuit & Pin Canvas/SVG */
+    .circuit-box {
+      background: #090d16; border: 1px solid var(--border-color); border-radius: 8px;
+      padding: 16px; min-height: 280px; position: relative;
+    }
+
+    /* Live Code Output */
+    pre.code-block {
+      background: #090d16; border: 1px solid var(--border-color); border-radius: 8px;
+      padding: 14px; font-family: var(--font-code); font-size: 13px; color: #e2e8f0;
+      overflow-x: auto; line-height: 1.5; position: relative;
+    }
+    .copy-btn {
+      position: absolute; top: 10px; right: 10px; background: #1e293b;
+      border: 1px solid #475569; color: #cbd5e1; font-size: 11px; padding: 4px 8px;
+      border-radius: 4px; cursor: pointer;
+    }
+    .copy-btn:hover { background: #334155; color: #fff; }
+
+    /* Interactive Pin Tester */
+    .tester-panel {
+      display: flex; gap: 14px; align-items: center; margin-top: 14px;
+      padding: 14px; background: var(--panel-bg); border-radius: 8px;
+    }
+    .tester-btn {
+      padding: 8px 16px; border-radius: 6px; font-weight: bold; font-size: 13px;
+      cursor: pointer; border: none; transition: all 0.2s;
+    }
+    .tester-btn.toggle-out { background: #059669; color: #fff; }
+    .tester-btn.toggle-out:hover { background: #10b981; }
+    .tester-btn.push-in { background: #2563eb; color: #fff; }
+    .tester-btn.push-in:active { background: #1d4ed8; transform: scale(0.96); }
+
+    .pin-status-indicator {
+      display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: bold;
+    }
+    .led-bulb {
+      width: 22px; height: 22px; border-radius: 50%; background: #334155;
+      border: 2px solid #475569; transition: all 0.2s;
+    }
+    .led-bulb.lit {
+      background: #ef4444; border-color: #f87171;
+      box-shadow: 0 0 16px #ef4444, 0 0 32px #ef4444;
+    }
+
+    /* Concept Explanation Table */
+    .compare-table {
+      width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px;
+    }
+    .compare-table th, .compare-table td {
+      border: 1px solid var(--border-color); padding: 10px 14px; text-align: left;
+    }
+    .compare-table th { background: var(--panel-bg); color: var(--accent-blue); }
+    .compare-table tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+
+    /* Quiz styles */
+    .quiz-card {
+      background: var(--panel-bg); border: 1px solid var(--border-color);
+      border-radius: 8px; padding: 16px; margin-bottom: 14px;
+    }
+    .quiz-q { font-weight: bold; font-size: 14px; margin-bottom: 10px; color: #e2e8f0; }
+    .quiz-opts { display: flex; flex-direction: column; gap: 6px; }
+    .quiz-opt {
+      padding: 8px 12px; border-radius: 6px; background: #0f172a;
+      border: 1px solid var(--border-color); cursor: pointer; font-size: 13px;
+      transition: all 0.2s;
+    }
+    .quiz-opt:hover { background: #1e293b; border-color: #64748b; }
+    .quiz-opt.correct { background: #064e3b; border-color: var(--accent-green); color: #a7f3d0; }
+    .quiz-opt.wrong { background: #450a0a; border-color: var(--accent-red); color: #fecaca; }
+    .quiz-feedback { margin-top: 8px; font-size: 12px; display: none; padding: 8px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1>⚡ STM32 GPIO 아키텍처 & 레지스터 인터랙티브 시뮬레이터</h1>
+      <p>32비트 MODER 레지스터 비트 슬라이싱, 주종 관계 시각화, 그리고 전동킥보드 실전 펌웨어 연결</p>
+    </div>
+    <div style="text-align: right;">
+      <span class="badge">STM32F767 / Inside Embedded v2</span>
+      <div style="font-size: 11px; color: var(--text-muted); margin-top: 5px;">Base Address: 0x4002 0000 (GPIOA)</div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchTab('sim')">🎮 32비트 MODER 비트 슬라이싱 실험실</button>
+    <button class="tab-btn" onclick="switchTab('concept')">🏢 아파트 배전반 비유 & 계층 구조</button>
+    <button class="tab-btn" onclick="switchTab('compare')">📊 레지스터별 비트 할당 비교 (1/2/4비트)</button>
+    <button class="tab-btn" onclick="switchTab('quiz')">📝 자가진단 퀴즈</button>
+  </div>
+
+  <!-- TAB 1: INTERACTIVE SIMULATION -->
+  <div id="tab-sim" class="tab-content active">
+    
+    <!-- 32-bit Bit Board Card -->
+    <div class="card">
+      <h2>
+        <span>🔧 GPIOA_MODER 32-Bit Interactive Board (단 1개의 32비트 레지스터)</span>
+        <button class="btn-reset" onclick="resetToDefault()">🔄 Reset Value 복원 (0xA8000000)</button>
+      </h2>
+
+      <div class="register-header">
+        <div>
+          <span style="color: var(--text-muted);">레지스터 주소:</span>
+          <span style="color: #cbd5e1; font-weight: bold;">0x40020000 (GPIOA_BASE + 0x00)</span>
+        </div>
+        <div>
+          <span style="color: var(--text-muted);">16진수 값:</span>
+          <span id="hexValueDisplay" class="val-hex">0xA8000000</span>
+        </div>
+        <div>
+          <span style="color: var(--text-muted);">2진수 (32-Bit):</span>
+          <span id="binValueDisplay" class="val-bin">1010 1000 0000 0000 0000 0000 0000 0000</span>
+        </div>
+      </div>
+
+      <!-- 16 Pin Slots (2 bits each) -->
+      <div class="bit-board-container">
+        <div class="bit-board" id="bitBoard">
+          <!-- Dynamically generated 16 slots (Pin 15 down to 0) -->
+        </div>
+      </div>
+
+      <!-- JTAG Warning Banner -->
+      <div id="jtagWarning" class="warning-banner">
+        <span style="font-size: 18px;">⚠️</span>
+        <div>
+          <strong>경고: JTAG/SWD 디버거 핀(PA13, PA14, PA15) 설정 변경 감지!</strong><br>
+          이 핀들의 모드를 Alternate Function(10)에서 다른 모드로 바꾸면, MCU 부팅 직후 ST-LINK/J-Link 통신이 끊겨 칩이 벽돌(Bricking)이 될 수 있습니다!
+        </div>
+      </div>
+
+      <!-- Selected Slot Control Bar -->
+      <div class="slot-control-bar">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="font-size: 14px; font-weight: bold; color: var(--accent-blue);" id="selectedPinTitle">선택된 핀: PA3 (Bits [7:6])</span>
+          <span style="font-size: 12px; color: var(--text-muted);" id="selectedPinDesc">강의 초반 LED 실습 핀</span>
+        </div>
+
+        <div class="mode-btn-group">
+          <button class="mode-btn in" onclick="setSelectedPinMode(0)">00 : Input (입력)</button>
+          <button class="mode-btn out" onclick="setSelectedPinMode(1)">01 : Output (출력)</button>
+          <button class="mode-btn af" onclick="setSelectedPinMode(2)">10 : AF (복합 기능)</button>
+          <button class="mode-btn ana" onclick="setSelectedPinMode(3)">11 : Analog (아날로그)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Interaction & Code Generator (Grid 2) -->
+    <div class="grid-2">
+      
+      <!-- Left: Physical Pin & Circuit Visualization -->
+      <div class="card">
+        <h2>
+          <span>💡 선택된 핀(<span id="circuitPinName">PA3</span>)의 내부 I/O 셀 동작 시뮬레이션</span>
+          <span id="circuitModeBadge" class="slot-mode-tag mode-out">Output (01)</span>
+        </h2>
+        
+        <div class="circuit-box" id="circuitBox">
+          <svg viewBox="0 0 460 220" style="width: 100%; height: 220px;" id="circuitSvg">
+            <!-- Background Elements -->
+            <rect x="10" y="10" width="440" height="200" rx="8" fill="#111827" stroke="#334155" />
+            
+            <!-- MCU Boundary -->
+            <path d="M 320 20 L 320 200" stroke="#475569" stroke-width="2" stroke-dasharray="4,4" />
+            <text x="160" y="32" fill="#64748b" font-size="11" font-weight="bold" text-anchor="middle">STM32 MCU 내부 I/O 로직</text>
+            <text x="385" y="32" fill="#d97706" font-size="11" font-weight="bold" text-anchor="middle">외부 물리 핀 패드</text>
+
+            <!-- Internal Driver Blocks (P-MOS / N-MOS) -->
+            <g id="driverGroup">
+              <rect x="40" y="55" width="100" height="40" rx="4" fill="#1e293b" stroke="#38bdf8" />
+              <text x="90" y="80" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">P-MOS (Pull-up)</text>
+              <rect x="40" y="125" width="100" height="40" rx="4" fill="#1e293b" stroke="#38bdf8" />
+              <text x="90" y="150" fill="#38bdf8" font-size="11" font-weight="bold" text-anchor="middle">N-MOS (Pull-down)</text>
+            </g>
+
+            <!-- Switch or Multiplexer -->
+            <circle cx="210" cy="110" r="18" fill="#1e293b" stroke="#f59e0b" stroke-width="2" />
+            <text x="210" y="114" fill="#f59e0b" font-size="9" font-weight="bold" text-anchor="middle">MUX</text>
+
+            <!-- Line to Pin Pad -->
+            <line x1="228" y1="110" x2="350" y2="110" stroke="#34d399" stroke-width="3" id="mainPinWire" />
+
+            <!-- External Pin Pad -->
+            <rect x="350" y="90" width="70" height="40" rx="4" fill="#451a03" stroke="#f59e0b" stroke-width="2" />
+            <text x="385" y="115" fill="#fef3c7" font-size="12" font-weight="bold" text-anchor="middle" id="padText">PA3</text>
+
+            <!-- Dynamic Mode Annotations -->
+            <text x="210" y="185" fill="#94a3b8" font-size="11" text-anchor="middle" id="circuitAnnotation">
+              출력 드라이버 활성화: ODR 레지스터의 비트 값에 따라 High/Low 출력
+            </text>
+          </svg>
+        </div>
+
+        <!-- Interactive Tester Bar -->
+        <div class="tester-panel" id="testerPanel">
+          <div class="pin-status-indicator">
+            <div class="led-bulb" id="testLedBulb"></div>
+            <span>출력 상태: <span id="pinOutStateText" style="color: #94a3b8;">LOW (0V)</span></span>
+          </div>
+          <button class="tester-btn toggle-out" id="testActionBtn" onclick="togglePinOutput()">ODR 토글 (LED ON/OFF)</button>
+        </div>
+      </div>
+
+      <!-- Right: Live C Code & Mask Generator -->
+      <div class="card">
+        <h2>
+          <span>💻 실전 C 언어 레지스터 제어 코드 (자동 생성)</span>
+          <span style="font-size: 11px; color: var(--accent-green); font-family: var(--font-code);">CMSIS Compliant</span>
+        </h2>
+        
+        <pre class="code-block" id="generatedCodeBlock"><button class="copy-btn" onclick="copyCode()">복사</button><code>// PA3 핀 모드 설정 코드 생성 중...</code></pre>
+
+        <div style="margin-top: 14px; font-size: 12px; color: var(--text-muted); line-height: 1.6;">
+          <strong style="color: var(--accent-yellow);">💡 Read-Modify-Write (RMW) 비트마스킹 핵심 원리:</strong><br>
+          1. <code>&= ~(3U &lt;&lt; (pin * 2))</code> : 기존 2비트를 안전하게 <code>00</code>으로 청소 (다른 15개 핀의 설정은 보존)<br>
+          2. <code>|= (mode &lt;&lt; (pin * 2))</code> : 원하는 2비트 모드 값을 해당 위치에 정확히 주입<br>
+          3. ⚠️ 절대 <code>GPIOA-&gt;MODER = 0x01;</code>처럼 통째로 덮어쓰지 마세요! 상위 디버거 핀 비트가 지워져 브릭됩니다.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TAB 2: APARTMENT METAPHOR & HIERARCHY -->
+  <div id="tab-concept" class="tab-content">
+    <div class="card">
+      <h2>🏢 대형 아파트 단지 비유로 보는 3단계 하드웨어 계층 구조</h2>
+      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">
+        "핀 밑에 레지스터가 있는 게 아닙니다. 아파트 관리실 제어판(레지스터) 1개 밑으로 16개 세대의 창문(물리 핀)이 연결되어 있습니다."
+      </p>
+
+      <div class="grid-3">
+        <div style="background: var(--panel-bg); padding: 18px; border-radius: 8px; border-top: 3px solid var(--accent-blue);">
+          <h3 style="color: var(--accent-blue); font-size: 15px; margin-bottom: 8px;">1. 아파트 단지 = GPIOA</h3>
+          <p style="font-size: 13px; color: #cbd5e1;">
+            • <strong>물리적 실체:</strong> STM32 칩 내부의 독립적인 1KB 하드웨어 페리페럴 블록.<br>
+            • <strong>주소:</strong> <code>0x4002 0000</code> (Base Address)<br>
+            • <strong>Port A와 GPIOA:</strong> 100% 동일한 대상을 부르는 이름입니다.
+          </p>
+        </div>
+
+        <div style="background: var(--panel-bg); padding: 18px; border-radius: 8px; border-top: 3px solid var(--accent-green);">
+          <h3 style="color: var(--accent-green); font-size: 15px; margin-bottom: 8px;">2. 통합 배전반 = MODER 레지스터</h3>
+          <p style="font-size: 13px; color: #cbd5e1;">
+            • <strong>물리적 실체:</strong> 1층 관리실에 놓인 <strong>단 1개의 32비트 하드웨어 래치(플립플롭)</strong>.<br>
+            • <strong>주소 오프셋:</strong> <code>+ 0x00</code><br>
+            • <strong>구조:</strong> 32칸짜리 스위치 패널이 2칸씩 16등분되어 각 세대를 통제합니다.
+          </p>
+        </div>
+
+        <div style="background: var(--panel-bg); padding: 18px; border-radius: 8px; border-top: 3px solid var(--accent-yellow);">
+          <h3 style="color: var(--accent-yellow); font-size: 15px; margin-bottom: 8px;">3. 세대 창문 = 물리 핀 (PA0~PA15)</h3>
+          <p style="font-size: 13px; color: #cbd5e1;">
+            • <strong>물리적 실체:</strong> 칩 외각으로 돌출된 금속 다리 (IC Pin Pad).<br>
+            • <strong>1:1 매핑:</strong> n번 세대 창문은 MODER 제어판의 n번째 2칸 스위치(<code>[2n+1:2n]</code>)에 직결되어 열리고 닫힙니다.
+          </p>
+        </div>
+      </div>
+
+      <!-- SVG Hierarchy Tree -->
+      <div style="margin-top: 24px; background: #090d16; padding: 20px; border-radius: 8px; text-align: center;">
+        <svg viewBox="0 0 800 240" style="width: 100%; max-width: 800px; height: auto;">
+          <!-- CPU -->
+          <rect x="30" y="90" width="130" height="60" rx="8" fill="#1e293b" stroke="#38bdf8" stroke-width="2" />
+          <text x="95" y="118" fill="#38bdf8" font-size="12" font-weight="bold" text-anchor="middle">CPU Core</text>
+          <text x="95" y="135" fill="#94a3b8" font-size="10" text-anchor="middle">Cortex-M7</text>
+
+          <!-- AHB Bus -->
+          <line x1="160" y1="120" x2="240" y2="120" stroke="#64748b" stroke-width="4" />
+          <text x="200" y="110" fill="#94a3b8" font-size="10" text-anchor="middle">AHB1 Bus</text>
+
+          <!-- Peripheral GPIOA -->
+          <rect x="240" y="40" width="220" height="160" rx="8" fill="#0f172a" stroke="#3b82f6" stroke-width="2" />
+          <text x="350" y="65" fill="#60a5fa" font-size="13" font-weight="bold" text-anchor="middle">GPIOA (Base: 0x4002 0000)</text>
+
+          <!-- MODER inside GPIOA -->
+          <rect x="260" y="85" width="180" height="45" rx="6" fill="#1e293b" stroke="#10b981" stroke-width="1.5" />
+          <text x="350" y="105" fill="#34d399" font-size="11" font-weight="bold" text-anchor="middle">MODER (32-bit 단 1개)</text>
+          <text x="350" y="120" fill="#a7f3d0" font-size="9" text-anchor="middle">Offset 0x00</text>
+
+          <!-- ODR inside GPIOA -->
+          <rect x="260" y="140" width="180" height="45" rx="6" fill="#1e293b" stroke="#94a3b8" stroke-width="1" />
+          <text x="350" y="167" fill="#cbd5e1" font-size="10" text-anchor="middle">ODR (Offset 0x14)</text>
+
+          <!-- Lines from MODER to Pins -->
+          <path d="M 440 100 L 530 60" stroke="#34d399" stroke-width="2" />
+          <path d="M 440 107 L 530 110" stroke="#34d399" stroke-width="2" />
+          <path d="M 440 115 L 530 160" stroke="#34d399" stroke-width="2" />
+
+          <!-- Pins -->
+          <rect x="530" y="45" width="120" height="32" rx="4" fill="#451a03" stroke="#f59e0b" />
+          <text x="590" y="65" fill="#fef3c7" font-size="11" font-weight="bold" text-anchor="middle">PA15 (Bits [31:30])</text>
+
+          <rect x="530" y="95" width="120" height="32" rx="4" fill="#14532d" stroke="#10b981" />
+          <text x="590" y="115" fill="#d1fae5" font-size="11" font-weight="bold" text-anchor="middle">PA3 (Bits [7:6])</text>
+
+          <rect x="530" y="145" width="120" height="32" rx="4" fill="#14532d" stroke="#10b981" />
+          <text x="590" y="165" fill="#d1fae5" font-size="11" font-weight="bold" text-anchor="middle">PA0 (Bits [1:0])</text>
+
+          <!-- Labels -->
+          <text x="590" y="210" fill="#94a3b8" font-size="11" text-anchor="middle">물리적 외부 돌출 핀 16개</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: REGISTER BIT ALLOCATION COMPARISON -->
+  <div id="tab-compare" class="tab-content">
+    <div class="card">
+      <h2>📊 레지스터마다 비트 할당 수가 다른 이유 완벽 비교표</h2>
+      <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 14px;">
+        상태의 가짓수($N$)에 따라 필요한 비트 수($2^k \ge N$)가 결정됩니다.
+      </p>
+
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>레지스터</th>
+            <th>오프셋</th>
+            <th>핀당 비트 수</th>
+            <th>16핀 총 필요 비트</th>
+            <th>레지스터 배치 구조</th>
+            <th>설계 이유 및 실무 적용</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>OTYPER</strong></td>
+            <td><code>0x04</code></td>
+            <td><span class="badge" style="background: rgba(56,189,248,0.2);">1비트</span></td>
+            <td>16비트</td>
+            <td>하위 <code>[15:0]</code> 사용<br>상위 <code>[31:16]</code> Reserved</td>
+            <td>출력 형태가 Push-Pull(0)과 Open-Drain(1) <strong>2가지 상태</strong>뿐이므로 1비트면 충분함.</td>
+          </tr>
+          <tr>
+            <td><strong>MODER</strong></td>
+            <td><code>0x00</code></td>
+            <td><span class="badge" style="background: rgba(52,211,153,0.2); color: var(--accent-green); border-color: var(--accent-green);">2비트</span></td>
+            <td>32비트</td>
+            <td>전 비트 <code>[31:0]</code> 꽉 참<br>(핀당 <code>[2n+1:2n]</code>)</td>
+            <td>Input(00), Output(01), AF(10), Analog(11) <strong>4가지 상태</strong>이므로 $2^2=4$로 2비트 필요.</td>
+          </tr>
+          <tr>
+            <td><strong>OSPEEDR</strong></td>
+            <td><code>0x08</code></td>
+            <td><span class="badge" style="background: rgba(52,211,153,0.2); color: var(--accent-green); border-color: var(--accent-green);">2비트</span></td>
+            <td>32비트</td>
+            <td>전 비트 <code>[31:0]</code> 꽉 참</td>
+            <td>Low(00), Medium(01), High(10), Very High(11) <strong>4단계 슬루레이트</strong> 구동 속도 선택.</td>
+          </tr>
+          <tr>
+            <td><strong>PUPDR</strong></td>
+            <td><code>0x0C</code></td>
+            <td><span class="badge" style="background: rgba(52,211,153,0.2); color: var(--accent-green); border-color: var(--accent-green);">2비트</span></td>
+            <td>32비트</td>
+            <td>전 비트 <code>[31:0]</code> 꽉 참</td>
+            <td>No-pull(00), Pull-up(01), Pull-down(10) <strong>3가지 상태</strong>를 표현해야 하므로 2비트 필요.</td>
+          </tr>
+          <tr>
+            <td><strong>AFR<br>(AFRL, AFRH)</strong></td>
+            <td><code>0x20</code><br><code>0x24</code></td>
+            <td><span class="badge" style="background: rgba(192,132,252,0.2); color: var(--accent-purple); border-color: var(--accent-purple);">4비트</span></td>
+            <td><strong>64비트</strong><br>(32비트 초과!)</td>
+            <td><strong>AFRL:</strong> Pin 0~7 (32비트)<br><strong>AFRH:</strong> Pin 8~15 (32비트)</td>
+            <td>AF0~AF15까지 <strong>16가지 복합 기능</strong>을 선택해야 하므로 핀당 4비트($2^4=16$) 필요. 32비트 레지스터 1개에 안 들어가서 2개로 분할!</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- TAB 4: QUIZ -->
+  <div id="tab-quiz" class="tab-content">
+    <div class="card">
+      <h2>📝 실전 자가진단 퀴즈 (즉시 채점)</h2>
+      <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">
+        지금까지 배운 내용을 바탕으로 3초 안에 풀어보세요!
+      </p>
+
+      <!-- Quiz 1 -->
+      <div class="quiz-card" id="q1">
+        <div class="quiz-q">1. Port C의 6번 핀(PC6, Fault LED)을 일반 출력 모드(01)로 설정하려고 합니다. GPIOC_MODER 레지스터에서 건드려야 할 비트 위치는?</div>
+        <div class="quiz-opts">
+          <div class="quiz-opt" onclick="checkQuiz(1, 0)">A) Bits [6:5]</div>
+          <div class="quiz-opt" onclick="checkQuiz(1, 1)">B) Bits [13:12]</div>
+          <div class="quiz-opt" onclick="checkQuiz(1, 2)">C) Bit 6 단 1개</div>
+          <div class="quiz-opt" onclick="checkQuiz(1, 3)">D) Bits [7:6]</div>
+        </div>
+        <div class="quiz-feedback" id="q1-fb"></div>
+      </div>
+
+      <!-- Quiz 2 -->
+      <div class="quiz-card" id="q2">
+        <div class="quiz-q">2. 3상 인버터 게이트 드라이버로 나가는 PWM 핀(PE8~PE13)의 OSPEEDR을 반드시 High Speed 이상으로 설정해야 하는 치명적 이유는?</div>
+        <div class="quiz-opts">
+          <div class="quiz-opt" onclick="checkQuiz(2, 0)">A) 전력 소모를 줄여 배터리를 아끼기 위해</div>
+          <div class="quiz-opt" onclick="checkQuiz(2, 1)">B) 슬루레이트 지연으로 데드타임 왜곡 및 MOSFET 동시 턴온(폭발)을 방지하기 위해</div>
+          <div class="quiz-opt" onclick="checkQuiz(2, 2)">C) CPU의 클록 속도를 216MHz로 강제 오버클럭하기 위해</div>
+        </div>
+        <div class="quiz-feedback" id="q2-fb"></div>
+      </div>
+
+      <!-- Quiz 3 -->
+      <div class="quiz-card" id="q3">
+        <div class="quiz-q">3. 'GPIOA'와 'Port A'의 관계를 가장 정확하게 설명한 것은?</div>
+        <div class="quiz-opts">
+          <div class="quiz-opt" onclick="checkQuiz(3, 0)">A) GPIOA는 핀의 이름이고, Port A는 레지스터의 이름이다.</div>
+          <div class="quiz-opt" onclick="checkQuiz(3, 1)">B) 완전히 다른 하드웨어 부품이며 서로 연결되어 있지 않다.</div>
+          <div class="quiz-opt" onclick="checkQuiz(3, 2)">C) 100% 동일한 대상을 가리키며, Port A는 일상적/물리적 호칭이고 GPIOA는 코드/하드웨어 공식 심볼이다.</div>
+        </div>
+        <div class="quiz-feedback" id="q3-fb"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // State of 16 pins (PA15 to PA0)
+    // 0: Input (00), 1: Output (01), 2: AF (10), 3: Analog (11)
+    // Reset value: 0xA8000000 -> PA15=10(2), PA14=10(2), PA13=10(2), PA12~0=00(0)
+    const defaultModes = [2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    let pinModes = [...defaultModes];
+    let selectedPin = 3; // Default selected: PA3
+    let currentOutputVal = 0; // 0: Low, 1: High
+
+    // Debug pin indices: 15 (PA15), 14 (PA14), 13 (PA13)
+    const debugPins = [15, 14, 13];
+
+    const pinDescriptions = {
+      15: "JTAG JTDI 디버그 핀 (기본 AF 모드)",
+      14: "SWD SWCLK 클록 디버그 핀 (기본 AF 모드)",
+      13: "SWD SWDIO 데이터 디버그 핀 (기본 AF 모드)",
+      6:  "실전 보드 PC6 Fault LED 대응 핀",
+      3:  "강의 초반 LED 제어 실습 핀 (PD3/PA3)",
+      2:  "홀센서 W상 신호 입력 (PD2 대응)",
+      1:  "홀센서 V상 신호 입력 (PD1 대응)",
+      0:  "홀센서 U상 신호 입력 (PD0 대응)"
+    };
+
+    function initBitBoard() {
+      const container = document.getElementById('bitBoard');
+      container.innerHTML = '';
+
+      for (let i = 15; i >= 0; i--) {
+        const slot = document.createElement('div');
+        const isDebug = debugPins.includes(i);
+        slot.className = `pin-slot ${isDebug ? 'debug-pin' : ''} ${i === selectedPin ? 'selected' : ''}`;
+        slot.id = `slot-pin-${i}`;
+        slot.onclick = () => selectPin(i);
+
+        const mode = pinModes[15 - i]; // 15 down to 0
+        const bHigh = (mode >> 1) & 1;
+        const bLow = mode & 1;
+
+        slot.innerHTML = `
+          <div class="slot-pin-name">PA${i}</div>
+          <div class="slot-bit-range">[${i*2+1}:${i*2}]</div>
+          <div class="bit-pair">
+            <div class="bit-chip ${bHigh ? (isDebug ? 'debug-on' : 'on') : ''}">${bHigh}</div>
+            <div class="bit-chip ${bLow ? (isDebug ? 'debug-on' : 'on') : ''}">${bLow}</div>
+          </div>
+          <div class="slot-mode-tag ${getModeTagClass(mode)}">${getModeName(mode)}</div>
+        `;
+        container.appendChild(slot);
+      }
+
+      updateRegisterDisplays();
+      updateSelectedPinUI();
+    }
+
+    function getModeName(mode) {
+      switch(mode) {
+        case 0: return 'Input';
+        case 1: return 'Output';
+        case 2: return 'AF';
+        case 3: return 'Analog';
+      }
+    }
+
+    function getModeTagClass(mode) {
+      switch(mode) {
+        case 0: return 'mode-in';
+        case 1: return 'mode-out';
+        case 2: return 'mode-af';
+        case 3: return 'mode-ana';
+      }
+    }
+
+    function selectPin(pinIndex) {
+      selectedPin = pinIndex;
+      // Update selected class
+      for (let i = 0; i < 16; i++) {
+        const el = document.getElementById(`slot-pin-${i}`);
+        if (el) el.classList.toggle('selected', i === selectedPin);
+      }
+      updateSelectedPinUI();
+    }
+
+    function setSelectedPinMode(newMode) {
+      pinModes[15 - selectedPin] = newMode;
+      initBitBoard();
+      checkJtagWarning();
+    }
+
+    function checkJtagWarning() {
+      // If PA15, PA14, or PA13 is not in AF mode (2)
+      const warning = (pinModes[0] !== 2 || pinModes[1] !== 2 || pinModes[2] !== 2);
+      const banner = document.getElementById('jtagWarning');
+      banner.classList.toggle('show', warning);
+    }
+
+    function resetToDefault() {
+      pinModes = [...defaultModes];
+      initBitBoard();
+      checkJtagWarning();
+    }
+
+    function calculateRegisterValue() {
+      let val = 0n;
+      for (let i = 0; i < 16; i++) {
+        const pin = i;
+        const mode = BigInt(pinModes[15 - pin]);
+        val |= (mode << BigInt(pin * 2));
+      }
+      return val;
+    }
+
+    function updateRegisterDisplays() {
+      const val = calculateRegisterValue();
+      const hexStr = '0x' + val.toString(16).toUpperCase().padStart(8, '0');
+      document.getElementById('hexValueDisplay').innerText = hexStr;
+
+      let binStr = val.toString(2).padStart(32, '0');
+      // Format 4 bits separated
+      let formattedBin = '';
+      for (let i = 0; i < 32; i += 4) {
+        formattedBin += binStr.substr(i, 4) + ' ';
+      }
+      document.getElementById('binValueDisplay').innerText = formattedBin.trim();
+    }
+
+    function updateSelectedPinUI() {
+      const mode = pinModes[15 - selectedPin];
+      const bitHigh = selectedPin * 2 + 1;
+      const bitLow = selectedPin * 2;
+
+      document.getElementById('selectedPinTitle').innerText = `선택된 핀: PA${selectedPin} (Bits [${bitHigh}:${bitLow}])`;
+      document.getElementById('selectedPinDesc').innerText = pinDescriptions[selectedPin] || "일반 범용 I/O 핀";
+
+      // Buttons active state
+      const btns = document.querySelectorAll('.mode-btn');
+      btns.forEach((btn, idx) => {
+        btn.classList.toggle('active', idx === mode);
+      });
+
+      // Circuit & Pad Text
+      document.getElementById('circuitPinName').innerText = `PA${selectedPin}`;
+      document.getElementById('padText').innerText = `PA${selectedPin}`;
+      const badge = document.getElementById('circuitModeBadge');
+      badge.className = `slot-mode-tag ${getModeTagClass(mode)}`;
+      badge.innerText = `${getModeName(mode)} (0${mode.toString(2)})`;
+
+      // Circuit Annotation & Tester Bar logic
+      const ann = document.getElementById('circuitAnnotation');
+      const tester = document.getElementById('testerPanel');
+      const testBtn = document.getElementById('testActionBtn');
+
+      if (mode === 1) { // Output
+        ann.innerText = "출력 모드: ODR 레지스터의 비트에 따라 3.3V 또는 0V를 물리 핀으로 드라이빙합니다.";
+        tester.style.display = 'flex';
+        testBtn.innerText = "ODR 토글 (LED ON/OFF)";
+        testBtn.className = "tester-btn toggle-out";
+      } else if (mode === 0) { // Input
+        ann.innerText = "입력 모드: 외부 신호가 슈미트 트리거를 거쳐 IDR 레지스터에 기록됩니다.";
+        tester.style.display = 'flex';
+        testBtn.innerText = "외부 스위치 누르기 (IDR = 1)";
+        testBtn.className = "tester-btn push-in";
+      } else if (mode === 2) { // AF
+        ann.innerText = "Alternate Function: 타이머 PWM(TIM1/2) 또는 통신(UART) 신호선이 직접 핀에 직결됩니다.";
+        tester.style.display = 'none';
+      } else { // Analog
+        ann.innerText = "아날로그 모드: 디지털 버퍼가 차단되고 ADC/DAC 내부 아날로그 채널로 직결됩니다.";
+        tester.style.display = 'none';
+      }
+
+      updateCodeBlock();
+    }
+
+    function togglePinOutput() {
+      const mode = pinModes[15 - selectedPin];
+      const bulb = document.getElementById('testLedBulb');
+      const txt = document.getElementById('pinOutStateText');
+
+      if (mode === 1) { // Output
+        currentOutputVal = currentOutputVal ? 0 : 1;
+        bulb.classList.toggle('lit', currentOutputVal === 1);
+        txt.innerText = currentOutputVal ? "HIGH (3.3V) - LED 점등" : "LOW (0V) - LED 소등";
+        txt.style.color = currentOutputVal ? "#34d399" : "#94a3b8";
+      } else if (mode === 0) { // Input push
+        bulb.classList.add('lit');
+        txt.innerText = "HIGH (3.3V) - 외부 스위치 접점 인가";
+        txt.style.color = "#38bdf8";
+        setTimeout(() => {
+          bulb.classList.remove('lit');
+          txt.innerText = "LOW (0V) - 풀다운 상태";
+          txt.style.color = "#94a3b8";
+        }, 600);
+      }
+    }
+
+    function updateCodeBlock() {
+      const pin = selectedPin;
+      const mode = pinModes[15 - pin];
+      const shift = pin * 2;
+      const modeBin = `0b${mode.toString(2).padStart(2, '0')}`;
+
+      const code = `// ==========================================
+// PA${pin}번 핀 모드 설정 (Read-Modify-Write 표준)
+// 비트 위치: Bits [${shift+1}:${shift}]
+// ==========================================
+
+// 1) 기존 2비트를 00으로 클리어 (Clear Mask: 3U = 0b11)
+GPIOA->MODER &= ~(3U << (${pin} * 2));
+
+// 2) 원하는 모드(${getModeName(mode)} = ${modeBin}) 쓰기
+${mode > 0 ? `GPIOA->MODER |=  (${mode}U << (${pin} * 2));` : `// 00(입력)이므로 클리어만으로 완료`}
+
+// [참고] 전체 32비트 레지스터 현재 반영값: 
+// GPIOA_MODER = ${document.getElementById('hexValueDisplay').innerText};`;
+
+      document.getElementById('generatedCodeBlock').querySelector('code').innerText = code;
+    }
+
+    function copyCode() {
+      const code = document.getElementById('generatedCodeBlock').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        alert("C 언어 레지스터 설정 코드가 클립보드에 복사되었습니다!");
+      });
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+      document.getElementById(`tab-${tabId}`).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    // Quiz evaluation
+    const quizAnswers = [1, 1, 2]; // Q1: B(1), Q2: B(1), Q3: C(2)
+    const quizFeedbackText = [
+      "정답입니다! 핀 번호 n=6이므로, 2를 곱한 [2*6+1 : 2*6] 즉 Bits [13:12] 자리를 조작해야 합니다.",
+      "정답입니다! 슬루레이트가 느려지면 스위칭 손실로 과열되고, 데드타임이 왜곡되어 상·하단 MOSFET 동시 턴온(Shoot-Through)으로 인버터가 소손될 수 있습니다.",
+      "정답입니다! Port A와 GPIOA는 동일한 하드웨어 블록이며, C 언어 CMSIS 상에서 구조체 포인터 매크로로 정의된 것입니다."
+    ];
+
+    function checkQuiz(qNum, selectedOpt) {
+      const qCard = document.getElementById(`q${qNum}`);
+      const fb = document.getElementById(`q${qNum}-fb`);
+      const opts = qCard.querySelectorAll('.quiz-opt');
+
+      opts.forEach((opt, idx) => {
+        opt.classList.remove('correct', 'wrong');
+        if (idx === quizAnswers[qNum - 1]) opt.classList.add('correct');
+        else if (idx === selectedOpt) opt.classList.add('wrong');
+      });
+
+      fb.style.display = 'block';
+      if (selectedOpt === quizAnswers[qNum - 1]) {
+        fb.style.background = "rgba(52, 211, 153, 0.15)";
+        fb.style.color = "#6ee7b7";
+        fb.innerText = "🎉 " + quizFeedbackText[qNum - 1];
+      } else {
+        fb.style.background = "rgba(248, 113, 113, 0.15)";
+        fb.style.color = "#fca5a5";
+        fb.innerText = "❌ 오답입니다. 다시 한번 계층 구조와 2배수 공식을 확인해 보세요!";
+      }
+    }
+
+    // Initialize on load
+    window.onload = () => {
+      initBitBoard();
+    };
+  </script>
+</body>
+</html>
